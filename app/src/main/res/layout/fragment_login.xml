@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background"
+    android:padding="32dp"
+    tools:context=".LoginFragment">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="로그인"
+        android:textAppearance="@style/TextAppearance.App.HeadlineLarge"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="100dp" />
+
+    <EditText
+        android:id="@+id/et_email"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_minimal_edit_text_square"
+        android:hint="이메일"
+        android:inputType="textEmailAddress"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="@color/color_text_dark"
+        android:textColorHint="@color/color_text_light"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        android:layout_marginTop="48dp"
+        tools:ignore="UnusedAttribute" />
+
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_minimal_edit_text_square"
+        android:hint="비밀번호"
+        android:inputType="textPassword"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="@color/color_text_dark"
+        android:textColorHint="@color/color_text_light"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_email"
+        android:layout_marginTop="16dp"
+        tools:ignore="UnusedAttribute" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_continue"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:text="계속"
+        android:backgroundTint="@color/black"
+        app:cornerRadius="8dp"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_password"
+        android:layout_marginTop="32dp" />
+
+    <LinearLayout
+        android:id="@+id/layout_or_separator"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_continue"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/color_divider" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" 또는 "
+            android:textColor="@color/color_text_light"
+            android:textSize="14sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/color_divider" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_login_google"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:text="Google로 로그인"
+        android:backgroundTint="@color/color_background"
+        app:cornerRadius="8dp"
+        android:textColor="@color/color_text_dark"
+        app:strokeColor="@color/color_divider"
+        app:strokeWidth="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_or_separator"
+        android:layout_marginTop="16dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_login_apple"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:text="Apple로 로그인"
+        android:backgroundTint="@color/black"
+        app:cornerRadius="8dp"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_login_google"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tv_terms"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="계속을 클릭하면 당사의 서비스 이용 약관 및 개인정보 처리방침에 동의하는 것으로 간주됩니다."
+        android:textColor="@color/color_text_light"
+        android:textSize="12sp"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@id/tv_register"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/tv_register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="계정이 없으신가요? 가입하기"
+        android:textColor="@color/color_text_medium"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_main.xml"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.myapplication.HomeFragment"
+        android:label="홈"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/fridgeFragment"
+        android:name="com.example.myapplication.FridgeFragment"
+        android:label="냉장고"
+        tools:layout="@layout/fragment_fridge" />
+
+    <fragment
+        android:id="@+id/recipeFragment"
+        android:name="com.example.myapplication.RecipeFragment"
+        android:label="레시피"
+        tools:layout="@layout/fragment_recipe" />
+
+    <fragment
+        android:id="@+id/bookmarkFragment"
+        android:name="com.example.myapplication.BookmarkFragment"
+        android:label="북마크"
+        tools:layout="@layout/fragment_bookmark" />
+
+    <fragment
+        android:id="@+id/myFragment"
+        android:name="com.example.myapplication.MyFragment"
+        android:label="MY"
+        tools:layout="@layout/fragment_my" />
+</navigation>
