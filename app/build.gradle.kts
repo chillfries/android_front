@@ -47,8 +47,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // --- A-1 태스크에서 추가할 의존성 ---
-
     // 1. Navigation Component
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
@@ -67,6 +65,14 @@ dependencies {
     // 5. Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    // B-1 태스크: CameraX 및 TedPermission 추가 (libs.versions.toml에 정의됨)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+    implementation(libs.ted.permission.normal)
 
     // 테스트 관련 (기존 유지)
     testImplementation(libs.junit)
