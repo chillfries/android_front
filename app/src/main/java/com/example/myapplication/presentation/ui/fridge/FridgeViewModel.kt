@@ -9,9 +9,7 @@ import com.example.myapplication.domain.repository.FridgeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-// ⭐ 해결 1: Hilt ViewModel 어노테이션 추가
 @HiltViewModel
-// ⭐ 해결 2: 생성자에 @Inject 어노테이션 추가
 class FridgeViewModel @Inject constructor(
     private val fridgeRepository: FridgeRepository
 ) : ViewModel() {
@@ -39,12 +37,19 @@ class FridgeViewModel @Inject constructor(
         loadData()
     }
 
+    // 단일 재료 저장/수정
     fun saveIngredient(ingredient: Ingredient) {
         if (ingredient.id != 0L) {
             fridgeRepository.updateIngredient(ingredient)
         } else {
             fridgeRepository.addIngredient(ingredient)
         }
+        loadData()
+    }
+
+    // ⭐ 해결: 여러 재료를 한 번에 업데이트하는 함수 추가
+    fun updateIngredients(ingredientsToUpdate: List<Ingredient>) {
+        ingredientsToUpdate.forEach { fridgeRepository.updateIngredient(it) }
         loadData()
     }
 
