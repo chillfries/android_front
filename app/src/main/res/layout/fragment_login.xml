@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/color_background"
     android:padding="32dp"
-    tools:context=".LoginFragment">
+    tools:context=".feature.auth.LoginFragment">
 
     <TextView
         android:id="@+id/tv_title"

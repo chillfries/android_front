@@ -1,16 +1,15 @@
-package com.example.myapplication
+package com.example.myapplication.feature.bookmark
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.myapplication.databinding.FragmentHomeBinding // View Binding 사용
+import com.example.myapplication.databinding.FragmentBookmarkBinding // View Binding 사용
 
-class HomeFragment : Fragment() {
-
+class BookmarkFragment : Fragment() {
     // View Binding 객체 선언
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentBookmarkBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -18,7 +17,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // View Binding으로 Fragment 레이아웃 연결
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentBookmarkBinding.inflate(inflater, container, false)
         return binding.root
     }
 

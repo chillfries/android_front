@@ -1,6 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    // ⭐ 1. Parcelize 플러그인 추가 (Storage 모델에 @Parcelize 사용 가능하도록) ⭐
+    alias(libs.plugins.kotlin.parcelize) // libs.versions.toml에 정의되어 있다고 가정
+
+    // ⭐ 2. Safe Args 플러그인 추가 (Navigation Directions 클래스 자동 생성) ⭐
+    alias(libs.plugins.navigation.safeargs)
 }
 
 android {
@@ -33,11 +39,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+
+        // ⭐ 1. Java 8 이상 API 사용을 위한 디슈가링 설정 추가 ⭐
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 
@@ -47,11 +56,11 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // --- A-1 태스크에서 추가할 의존성 ---
-
     // 1. Navigation Component
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    implementation(libs.androidx.constraintlayout)
 
     // 2. Retrofit & OkHttp
     implementation(libs.retrofit)
@@ -68,8 +77,19 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
+    // B-1 태스크: CameraX 및 TedPermission 추가 (libs.versions.toml에 정의됨)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+    implementation(libs.ted.permission.normal)
+
     // 테스트 관련 (기존 유지)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // ⭐ 2. 디슈가링 라이브러리 추가 ⭐
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

@@ -1,15 +1,16 @@
-package com.example.myapplication
+package com.example.myapplication.feature.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.myapplication.databinding.FragmentMyBinding // View Binding 사용
+import com.example.myapplication.databinding.FragmentHomeBinding // View Binding 사용
 
-class MyFragment : Fragment() {
+class HomeFragment : Fragment() {
+
     // View Binding 객체 선언
-    private var _binding: FragmentMyBinding? = null
+    private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -17,7 +18,7 @@ class MyFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // View Binding으로 Fragment 레이아웃 연결
-        _binding = FragmentMyBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 

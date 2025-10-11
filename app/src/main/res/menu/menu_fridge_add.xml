@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_add_storage"
+        android:title="저장 공간 추가" />
+    <item
+        android:id="@+id/menu_add_ingredient"
+        android:title="재료 직접 추가" />
+</menu>

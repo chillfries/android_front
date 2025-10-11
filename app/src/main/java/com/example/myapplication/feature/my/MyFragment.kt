@@ -1,16 +1,15 @@
-package com.example.myapplication
+package com.example.myapplication.feature.my
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.myapplication.databinding.FragmentFridgeBinding // View Binding 사용
+import com.example.myapplication.databinding.FragmentMyBinding // View Binding 사용
 
-
-class FridgeFragment : Fragment() {
+class MyFragment : Fragment() {
     // View Binding 객체 선언
-    private var _binding: FragmentFridgeBinding? = null
+    private var _binding: FragmentMyBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -18,7 +17,7 @@ class FridgeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // View Binding으로 Fragment 레이아웃 연결
-        _binding = FragmentFridgeBinding.inflate(inflater, container, false)
+        _binding = FragmentMyBinding.inflate(inflater, container, false)
         return binding.root
     }
 

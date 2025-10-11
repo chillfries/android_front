@@ -22,4 +22,8 @@
     <color name="color_on_primary">#FF007AFF</color>
     <color name="color_warning_light">#FFFFF3E6</color>
     <color name="color_warning_dark">#FFFF9800</color>
+
+    <color name="dday_expired_red">#D32F2F</color>
+    <color name="dday_imminent_orange">#F57C00</color>
+    <color name="dday_normal_green">#4CAF50</color>
 </resources>

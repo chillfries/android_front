@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.myapplication.LoginFragment"
+        android:name="com.example.myapplication.feature.auth.LoginFragment"
         android:label="로그인"
         tools:layout="@layout/fragment_login" >
         <action
@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.myapplication.RegisterFragment"
+        android:name="com.example.myapplication.feature.auth.RegisterFragment"
         android:label="회원가입"
         tools:layout="@layout/fragment_register" />
 

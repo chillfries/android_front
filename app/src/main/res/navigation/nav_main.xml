@@ -1,37 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_main.xml"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.myapplication.HomeFragment"
+        android:name="com.example.myapplication.feature.home.HomeFragment"
         android:label="홈"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/fridgeFragment"
-        android:name="com.example.myapplication.FridgeFragment"
+        android:name="com.example.myapplication.feature.fridge.FridgeFragment"
         android:label="냉장고"
-        tools:layout="@layout/fragment_fridge" />
+        tools:layout="@layout/fragment_fridge">
+
+        <action
+            android:id="@+id/action_fridgeFragment_to_ingredientEditFragment"
+            app:destination="@id/ingredientEditFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/recipeFragment"
-        android:name="com.example.myapplication.RecipeFragment"
+        android:name="com.example.myapplication.feature.recipe.RecipeFragment"
         android:label="레시피"
         tools:layout="@layout/fragment_recipe" />
 
     <fragment
         android:id="@+id/bookmarkFragment"
-        android:name="com.example.myapplication.BookmarkFragment"
+        android:name="com.example.myapplication.feature.bookmark.BookmarkFragment"
         android:label="북마크"
         tools:layout="@layout/fragment_bookmark" />
 
     <fragment
         android:id="@+id/myFragment"
-        android:name="com.example.myapplication.MyFragment"
+        android:name="com.example.myapplication.feature.my.MyFragment"
         android:label="MY"
         tools:layout="@layout/fragment_my" />
+
+    <fragment
+        android:id="@+id/ingredientEditFragment"
+        android:name="com.example.myapplication.feature.fridge.IngredientEditFragment"
+        android:label="IngredientEditFragment"
+        tools:layout="@layout/fragment_ingredient_edit">
+
+        <action
+            android:id="@+id/action_ingredientEditFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.myapplication.feature.camera.CameraFragment"
+        android:label="Camera"
+        tools:layout="@layout/fragment_camera">
+
+        <action
+            android:id="@+id/action_cameraFragment_to_ingredientEditFragment"
+            app:destination="@id/ingredientEditFragment" />
+    </fragment>
+
 </navigation>
