@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.myapplication.feature.home.HomeFragment"
+        android:name="com.example.myapplication.presentation.ui.home.HomeFragment"
         android:label="홈"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/fridgeFragment"
-        android:name="com.example.myapplication.feature.fridge.FridgeFragment"
+        android:name="com.example.myapplication.presentation.ui.fridge.FridgeFragment"
         android:label="냉장고"
         tools:layout="@layout/fragment_fridge">
 
@@ -24,25 +24,25 @@
 
     <fragment
         android:id="@+id/recipeFragment"
-        android:name="com.example.myapplication.feature.recipe.RecipeFragment"
+        android:name="com.example.myapplication.presentation.ui.recipe.RecipeFragment"
         android:label="레시피"
         tools:layout="@layout/fragment_recipe" />
 
     <fragment
         android:id="@+id/bookmarkFragment"
-        android:name="com.example.myapplication.feature.bookmark.BookmarkFragment"
+        android:name="com.example.myapplication.presentation.ui.bookmark.BookmarkFragment"
         android:label="북마크"
         tools:layout="@layout/fragment_bookmark" />
 
     <fragment
         android:id="@+id/myFragment"
-        android:name="com.example.myapplication.feature.my.MyFragment"
+        android:name="com.example.myapplication.presentation.ui.my.MyFragment"
         android:label="MY"
         tools:layout="@layout/fragment_my" />
 
     <fragment
         android:id="@+id/ingredientEditFragment"
-        android:name="com.example.myapplication.feature.fridge.IngredientEditFragment"
+        android:name="com.example.myapplication.presentation.ui.fridge.IngredientEditFragment"
         android:label="IngredientEditFragment"
         tools:layout="@layout/fragment_ingredient_edit">
 
@@ -53,7 +53,7 @@
 
     <fragment
         android:id="@+id/cameraFragment"
-        android:name="com.example.myapplication.feature.camera.CameraFragment"
+        android:name="com.example.myapplication.presentation.ui.camera.CameraFragment"
         android:label="Camera"
         tools:layout="@layout/fragment_camera">
 

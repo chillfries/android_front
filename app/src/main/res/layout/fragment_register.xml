@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/color_background"
     android:padding="32dp"
-    tools:context=".feature.auth.RegisterFragment">
+    tools:context=".presentation.ui.auth.RegisterFragment">
 
     <TextView
         android:id="@+id/tv_title"
