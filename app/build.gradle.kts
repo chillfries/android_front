@@ -43,18 +43,23 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
+
 }
 
 dependencies {
 
+    // 이전 단계에서 추가했던 의존성들은 그대로 둡니다.
+    // CameraX 관련 라이브러리도 mmain의 기존 기능을 위해 그대로 둡니다.
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -73,7 +78,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
-    // CameraX
+    // CameraX (기존 mmain 기능 유지를 위해 필요)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
@@ -95,8 +100,19 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // ⭐ 4. Retrofit, OkHttp 의존성을 추가합니다.
+    // Retrofit, OkHttp 의존성
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
+    implementation("com.squareup.okhttp3:okhttp-urlconnection:4.9.3")
+
+    // TensorFlow Lite (ttemp에서 가져온 기능, mmain의 카메라 분석 기능에 필요할 수 있음)
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.support)
+    implementation(libs.tensorflow.lite.task.vision)
+}
+
+// ▼▼▼▼▼ 이 코드는 그대로 유지해주세요. (TensorFlow Lite 라이브러리 충돌 방지) ▼▼▼▼▼
+configurations.all {
+    exclude(group = "com.google.ai.edge.litert")
 }

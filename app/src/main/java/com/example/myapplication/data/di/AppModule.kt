@@ -77,11 +77,11 @@ object AppModule {
     }
 
     // --- Repositories ---
-    // (기존 Repository Provider들은 수정 없이 그대로 유지)
     @Provides
     @Singleton
-    fun provideAuthRepository(): AuthRepository {
-        return AuthRepositoryImpl()
+    fun provideAuthRepository(apiService: AuthApiService): AuthRepository {
+        // AuthApiService를 사용하는 실제 구현체로 변경합니다.
+        return AuthRepositoryImpl(apiService)
     }
 
     @Provides
