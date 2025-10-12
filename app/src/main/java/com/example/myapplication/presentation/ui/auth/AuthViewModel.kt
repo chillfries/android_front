@@ -10,6 +10,7 @@ import com.example.myapplication.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.lifecycle.asLiveData // ✅ asLiveData import
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -19,32 +20,30 @@ class AuthViewModel @Inject constructor(
     private val _authMessage = MutableLiveData<String>()
     val authMessage: LiveData<String> get() = _authMessage
 
-    private val _isAuthenticated = MutableLiveData<Boolean?>()
-    val isAuthenticated: LiveData<Boolean?> get() = _isAuthenticated
+    // ✅ DataStore 상태를 Flow로 받아 LiveData로 노출 (초기 상태 체크 및 UI 업데이트용)
+    val isAuthenticated: LiveData<Boolean> = repository.getAuthStatusFlow().asLiveData(viewModelScope.coroutineContext)
 
-    // 회원가입 성공 후 상태를 초기화하기 위한 LiveData
     private val _registrationComplete = MutableLiveData<Boolean>()
     val registrationComplete: LiveData<Boolean> get() = _registrationComplete
 
     fun performLogin(email: String, password: String) {
-        // viewModelScope.launch를 사용해 코루틴 컨텍스트에서 API 호출
         viewModelScope.launch {
             try {
-                // UserLoginRequest 객체를 생성하여 전달
                 val response = repository.login(UserLoginRequest(email, password))
 
-                // response.isSuccessful로 성공 여부 판단
                 if (response.isSuccessful) {
+                    // 1. DataStore에 로그인 상태 저장
+                    repository.setLoggedIn(true) // ✅ DataStore에 true 저장
                     _authMessage.postValue(response.body()?.message ?: "로그인 성공!")
-                    _isAuthenticated.postValue(true)
+                    // 2. isAuthenticated LiveData가 자동으로 업데이트되므로, 메인 화면으로 이동 처리는 AuthActivity에서 담당합니다.
+
                 } else {
+                    repository.setLoggedIn(false) // 로그인 실패 시 상태 초기화
                     _authMessage.postValue("로그인 실패: ${response.errorBody()?.string()}")
-                    _isAuthenticated.postValue(false)
                 }
             } catch (e: Exception) {
-                // 네트워크 오류 등 예외 처리
+                repository.setLoggedIn(false)
                 _authMessage.postValue("오류가 발생했습니다: ${e.message}")
-                _isAuthenticated.postValue(false)
             }
         }
     }
@@ -81,5 +80,14 @@ class AuthViewModel @Inject constructor(
     // 회원가입 완료 상태를 리셋하는 함수
     fun onRegistrationCompleteHandled() {
         _registrationComplete.value = false
+    }
+
+    // 로그아웃을 위한 함수 (향후 사용)
+    fun performLogout() {
+        viewModelScope.launch {
+            repository.setLoggedIn(false) // DataStore의 로그인 상태를 false로 변경
+            // TODO: 서버 로그아웃 API 호출 (현재 없음)
+            _authMessage.postValue("로그아웃 되었습니다.")
+        }
     }
 }

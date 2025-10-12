@@ -106,6 +106,9 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation("com.squareup.okhttp3:okhttp-urlconnection:4.9.3")
 
+    // DataStore (세션 관리를 위해 추가)
+    implementation(libs.androidx.datastore.preferences)
+
     // TensorFlow Lite (ttemp에서 가져온 기능, mmain의 카메라 분석 기능에 필요할 수 있음)
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.support)

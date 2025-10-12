@@ -20,8 +20,8 @@ class AuthActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // 인증 상태 LiveData 관찰
+        // ✅ 이제 이 LiveData는 DataStore의 영구적인 상태를 반영합니다.
         authViewModel.isAuthenticated.observe(this) { isAuthenticated ->
-            // isAuthenticated가 true일 때만 메인 액티비티로 이동
             if (isAuthenticated == true) {
                 navigateToMain()
             }

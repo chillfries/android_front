@@ -24,6 +24,16 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+// ✅ DataStore import 추가
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
+import okhttp3.JavaNetCookieJar // ✅ CookieJar import
+import java.net.CookieManager // ✅ CookieManager import
+
+// DataStore 인스턴스 생성 정의
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_session")
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -37,7 +47,13 @@ object AppModule {
         }.apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
+
+        // ✅ CookieJar 추가: 서버가 보내는 세션 쿠키를 자동으로 저장합니다.
+        val cookieManager = CookieManager()
+        val cookieJar = JavaNetCookieJar(cookieManager)
+
         return OkHttpClient.Builder()
+            .cookieJar(cookieJar) // ✅ CookieJar 적용
             .addInterceptor(loggingInterceptor)
             .build()
     }
@@ -56,6 +72,13 @@ object AppModule {
     @Singleton
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
+    }
+
+    // 1. DataStore Provider 추가
+    @Provides
+    @Singleton
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.dataStore
     }
 
 
@@ -79,9 +102,8 @@ object AppModule {
     // --- Repositories ---
     @Provides
     @Singleton
-    fun provideAuthRepository(apiService: AuthApiService): AuthRepository {
-        // AuthApiService를 사용하는 실제 구현체로 변경합니다.
-        return AuthRepositoryImpl(apiService)
+    fun provideAuthRepository(apiService: AuthApiService, dataStore: DataStore<Preferences>): AuthRepository { // ✅ DataStore 인자 추가
+        return AuthRepositoryImpl(apiService, dataStore) // ✅ DataStore 전달
     }
 
     @Provides
