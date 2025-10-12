@@ -60,13 +60,15 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
 
-    // Navigation
+    // Navigation (navGraphViewModels 기능을 포함합니다)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Lifecycle & Coroutines
+    // Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
     // Hilt (의존성 주입)
@@ -82,21 +84,18 @@ dependencies {
     // RecyclerView
     implementation(libs.androidx.recyclerview)
 
-    // Room (데이터베이스)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
-    // Desugar for older APIs
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
-
     // 테스팅 라이브러리
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+<<<<<<< HEAD
     // ⭐ 4. Retrofit, OkHttp 의존성을 추가합니다.
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
+=======
+    // Desugar
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+>>>>>>> parent of cf27801 (냉장고 탭 데이터베이스 구현)
 }

@@ -25,9 +25,7 @@ class FridgeFragment : BaseFragment<FragmentFridgeBinding>(FragmentFridgeBinding
 
         setupRecyclerView()
         observeViewModel()
-
-        // ⭐ 여기를 수정했습니다! loadData() -> loadStorages()
-        viewModel.loadStorages()
+        viewModel.loadData()
 
         binding.fabAddMenu.setOnClickListener {
             showAddMenu(it)
@@ -38,7 +36,9 @@ class FridgeFragment : BaseFragment<FragmentFridgeBinding>(FragmentFridgeBinding
         storageBoxAdapter = StorageBoxAdapter(
             storages = emptyList(),
             ingredientsByStorage = emptyMap(),
+            // ⭐ 해결: 재료 아이콘 클릭 시 툴팁(Toast) 표시
             onIngredientClick = ::handleIngredientIconClick,
+            // ⭐ 해결: 저장 공간 박스 전체 클릭 시 목록 편집 화면으로 이동
             onStorageBoxClick = ::handleStorageBoxClick,
             onStorageSettingsClick = ::handleStorageSettingsClick
         )
@@ -82,10 +82,12 @@ class FridgeFragment : BaseFragment<FragmentFridgeBinding>(FragmentFridgeBinding
         storageBoxAdapter.updateData(storages, ingredientsByStorage)
     }
 
+    // ⭐ 해결: 재료 아이콘 클릭 핸들러 (툴팁 기능)
     private fun handleIngredientIconClick(ingredient: Ingredient) {
         Toast.makeText(requireContext(), "재료: ${ingredient.name}, 수량: ${ingredient.quantity}", Toast.LENGTH_SHORT).show()
     }
 
+    // ⭐ 해결: 저장 공간 박스 클릭 핸들러 (목록 편집 화면 이동)
     private fun handleStorageBoxClick(storage: Storage) {
         val action = FridgeFragmentDirections.actionFridgeFragmentToIngredientListEditFragment(storage.id)
         findNavController().navigate(action)
