@@ -90,10 +90,15 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // ⭐ 4. Retrofit, OkHttp 의존성을 추가합니다.
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
+=======
+    // Desugar
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+>>>>>>> parent of cf27801 (냉장고 탭 데이터베이스 구현)
 =======
     // Desugar
     coreLibraryDesugaring(libs.desugar.jdk.libs)
