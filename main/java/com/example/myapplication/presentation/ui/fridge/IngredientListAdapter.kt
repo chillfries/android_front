@@ -44,6 +44,7 @@ class IngredientListAdapter(
             quantityWatcher?.let { binding.etIngredientQuantity.removeTextChangedListener(it) }
             binding.autoCompleteStorage.onItemClickListener = null
             binding.etIngredientExpiryDate.setOnClickListener(null)
+            binding.autoCompleteStorage.setOnClickListener(null) // ⭐ 리스너 초기화 추가
 
             // 데이터 초기 설정
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -79,6 +80,12 @@ class IngredientListAdapter(
                     onIngredientUpdate(getItem(bindingAdapterPosition).copy(storageLocation = storageNames[position]))
                 }
             }
+
+            // ⭐ 해결: 저장 공간 클릭 시 드롭다운 메뉴가 나타나도록 리스너를 추가합니다.
+            binding.autoCompleteStorage.setOnClickListener {
+                binding.autoCompleteStorage.showDropDown()
+            }
+
             binding.etIngredientExpiryDate.setOnClickListener {
                 if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
                     onExpiryDateClick(getItem(bindingAdapterPosition)) { newDate ->

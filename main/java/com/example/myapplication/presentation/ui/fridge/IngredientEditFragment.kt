@@ -7,13 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navGraphViewModels // 수정된 import
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentIngredientEditBinding
 import com.example.myapplication.databinding.FragmentIngredientItemBinding
@@ -22,20 +23,17 @@ import com.example.myapplication.domain.model.Storage
 import com.example.myapplication.presentation.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeParseException
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import androidx.activity.OnBackPressedCallback
 
 
 @AndroidEntryPoint
 class IngredientEditFragment :
     BaseFragment<FragmentIngredientEditBinding>(FragmentIngredientEditBinding::inflate) {
 
-    private val editViewModel: IngredientEditViewModel by viewModels()
+    // ViewModel의 범위를 'fridge_nav_graph'로 변경
+    private val editViewModel: IngredientEditViewModel by navGraphViewModels(R.id.fridge_nav_graph)
     private val fridgeViewModel: FridgeViewModel by activityViewModels()
 
     private val ingredientFormBindings = mutableListOf<FragmentIngredientItemBinding>()
@@ -55,9 +53,9 @@ class IngredientEditFragment :
 
         val backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // ⭐ 해결: ViewModel에 정의된 clearAllIngredients 함수로 변경
                 editViewModel.clearAllIngredients()
                 findNavController().popBackStack()
+                // 콜백을 제거하여 중복 호출을 방지합니다.
                 remove()
             }
         }
@@ -67,7 +65,11 @@ class IngredientEditFragment :
             val recognized = bundle.getStringArrayList("recognized_ingredients")
             if (!recognized.isNullOrEmpty()) {
                 editViewModel.addRecognizedIngredients(recognized)
-                parentFragmentManager.beginTransaction().detach(this).attach(this).commit()
+                // 인식된 재료를 기반으로 폼을 추가합니다. (UI 자동 새로고침)
+                recognized.forEach { ingredientName ->
+                    val newIngredient = Ingredient(name = ingredientName, quantity = 1, unit = "개", storageLocation = availableStorages.firstOrNull()?.name ?: "", expiryDate = Date())
+                    addIngredientForm(newIngredient)
+                }
             }
         }
 
@@ -85,7 +87,6 @@ class IngredientEditFragment :
 
         binding.buttonRegisterAll.setOnClickListener {
             registerAllIngredients()
-            // ⭐ 해결: ViewModel에 정의된 clearAllIngredients 함수로 변경
             editViewModel.clearAllIngredients()
             findNavController().popBackStack()
         }
@@ -95,20 +96,23 @@ class IngredientEditFragment :
 
     override fun onPause() {
         super.onPause()
+        // 화면을 벗어날 때 현재 폼의 내용을 ViewModel에 저장합니다.
         val currentIngredients = getCurrentFormIngredients()
-        if (currentIngredients.isNotEmpty()) {
-            editViewModel.saveManualIngredients(currentIngredients)
-        }
+        editViewModel.saveManualIngredients(currentIngredients)
     }
 
     private fun restoreFormsFromViewModel() {
         val manualList = editViewModel.manualIngredients.value
         if (!manualList.isNullOrEmpty()) {
             manualList.forEach { addIngredientForm(it) }
-        } else {
+        }
+
+        // ViewModel에 저장된 내용이 없을 경우에만 기본 폼을 추가합니다.
+        if (binding.ingredientFormContainer.childCount <= 1) { // 1은 '추가하기' 버튼
             addIngredientForm()
         }
     }
+
 
     private fun addIngredientForm(initialIngredient: Ingredient? = null) {
         val inflater = LayoutInflater.from(context)
