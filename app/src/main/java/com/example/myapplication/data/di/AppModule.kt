@@ -31,6 +31,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import okhttp3.JavaNetCookieJar // ✅ CookieJar import
 import java.net.CookieManager // ✅ CookieManager import
 
+import com.example.myapplication.domain.repository.RecipeRepository
+import com.example.myapplication.data.repository.RecipeRepositoryImpl
+
 // DataStore 인스턴스 생성 정의
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_session")
 
@@ -110,6 +113,13 @@ object AppModule {
     @Singleton
     fun provideCameraRepository(): CameraRepository {
         return CameraRepositoryImpl()
+    }
+
+    // ✅ RecipeRepository 바인딩 추가 (누락된 의존성 해결)
+    @Provides
+    @Singleton
+    fun provideRecipeRepository(apiService: AuthApiService): RecipeRepository {
+        return RecipeRepositoryImpl(apiService)
     }
 
     @Provides
