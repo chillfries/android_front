@@ -18,10 +18,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.JavaNetCookieJar // 추가
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.CookieManager // 추가
 import javax.inject.Singleton
 
 @Module
@@ -37,7 +39,12 @@ object AppModule {
         }.apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
+        // --- '냉장고 모음'의 쿠키 설정을 추가합니다. ---
+        val cookieManager = CookieManager()
+        val cookieJar = JavaNetCookieJar(cookieManager)
+
         return OkHttpClient.Builder()
+            .cookieJar(cookieJar) // 쿠키 Jar 추가
             .addInterceptor(loggingInterceptor)
             .build()
     }
