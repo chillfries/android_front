@@ -14,6 +14,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -27,7 +28,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            // ⭐ 2. 개발용(debug) 빌드 시 사용할 서버 주소를 추가합니다.
+            // 에뮬레이터에서 로컬 서버에 접속하기 위한 표준 주소입니다.
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
+        }
         release {
+            // ⭐ 3. 배포용(release) 빌드 시 사용할 서버 주소를 추가합니다.
+            buildConfigField("String", "BASE_URL", "\"https://api.your-production-domain.com/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -86,4 +94,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // ⭐ 4. Retrofit, OkHttp 의존성을 추가합니다.
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging.interceptor)
 }
