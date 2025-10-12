@@ -1,15 +1,17 @@
+// 파일: mmain/main/java/com/example/myapplication/domain/model/Ingredient.kt
+
 package com.example.myapplication.domain.model
 
 import android.os.Parcelable
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.Entity // ✅ import 추가
+import androidx.room.PrimaryKey // ✅ import 추가
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 
 @Parcelize
-@Entity(tableName = "ingredients") // 데이터베이스 테이블 이름 지정
+@Entity(tableName = "ingredients") // ✅ Entity 어노테이션 추가
 data class Ingredient(
-    @PrimaryKey(autoGenerate = true) // id를 자동 증가하는 기본 키로 설정
+    @PrimaryKey(autoGenerate = true) // ✅ PrimaryKey 어노테이션 추가
     val id: Long = 0,
     val name: String,
     val quantity: Int,
