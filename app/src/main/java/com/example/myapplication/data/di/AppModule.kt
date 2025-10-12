@@ -1,20 +1,11 @@
 package com.example.myapplication.data.di
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
 import com.example.myapplication.BuildConfig // BuildConfig를 import 합니다.
 import com.example.myapplication.data.AppDatabase
 import com.example.myapplication.data.FridgeDao
-=======
->>>>>>> parent of cf27801 (냉장고 탭 데이터베이스 구현)
-=======
->>>>>>> parent of cf27801 (냉장고 탭 데이터베이스 구현)
-=======
->>>>>>> parent of cf27801 (냉장고 탭 데이터베이스 구현)
 import com.example.myapplication.data.repository.AuthRepositoryImpl
 import com.example.myapplication.data.repository.CameraRepositoryImpl
 import com.example.myapplication.data.repository.FridgeRepositoryImpl
@@ -25,6 +16,7 @@ import com.example.myapplication.network.AuthApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -36,9 +28,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     // --- Network Dependencies ---
     @Provides
     @Singleton
@@ -89,12 +78,6 @@ object AppModule {
 
     // --- Repositories ---
     // (기존 Repository Provider들은 수정 없이 그대로 유지)
-=======
->>>>>>> parent of cf27801 (냉장고 탭 데이터베이스 구현)
-=======
->>>>>>> parent of cf27801 (냉장고 탭 데이터베이스 구현)
-=======
->>>>>>> parent of cf27801 (냉장고 탭 데이터베이스 구현)
     @Provides
     @Singleton
     fun provideAuthRepository(): AuthRepository {
@@ -109,7 +92,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFridgeRepository(): FridgeRepository {
-        return FridgeRepositoryImpl()
+    fun provideFridgeRepository(fridgeDao: FridgeDao): FridgeRepository {
+        return FridgeRepositoryImpl(fridgeDao)
     }
 }
