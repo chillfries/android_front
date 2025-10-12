@@ -3,7 +3,7 @@ package com.example.myapplication.data.di
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
-import com.example.myapplication.BuildConfig // BuildConfig를 import 합니다.
+import com.example.myapplication.BuildConfig
 import com.example.myapplication.data.AppDatabase
 import com.example.myapplication.data.FridgeDao
 import com.example.myapplication.data.repository.AuthRepositoryImpl
@@ -46,7 +46,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL) // build.gradle.kts에 추가한 URL 사용
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -57,7 +57,6 @@ object AppModule {
     fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
     }
-
 
     // --- Database & DAO ---
     @Provides
@@ -77,18 +76,10 @@ object AppModule {
     }
 
     // --- Repositories ---
-    // (기존 Repository Provider들은 수정 없이 그대로 유지)
     @Provides
     @Singleton
     fun provideAuthRepository(authApi: AuthApiService): AuthRepository {
-        // AuthRepositoryImpl이 AuthApiService를 필요로 하므로, 파라미터로 받아 전달합니다.
         return AuthRepositoryImpl(authApi)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAuthRepository(): AuthRepository {
-        return AuthRepositoryImpl()
     }
 
     @Provides

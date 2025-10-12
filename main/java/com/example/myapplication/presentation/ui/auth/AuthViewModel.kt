@@ -5,8 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.domain.repository.AuthRepository
-import com.example.myapplication.network.UserCreateRequest
-import com.example.myapplication.network.UserLoginRequest
+import com.example.myapplication.data.model.LoginResponse
+import com.example.myapplication.data.model.UserCreateRequest
+import com.example.myapplication.data.model.UserLoginRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

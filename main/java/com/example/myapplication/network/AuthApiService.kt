@@ -8,7 +8,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-// API Endpoints 정의 (내용은 동일)
+// API Endpoints 정의
 interface AuthApiService {
     @POST("/api/v1/users/signup")
     suspend fun signup(@Body user: UserCreateRequest): Response<Unit>
