@@ -6,7 +6,7 @@
         android:title="홈" />
 
     <item
-        android:id="@+id/fridgeFragment"
+        android:id="@+id/fridge_nav_graph"
         android:icon="@drawable/ic_fridge_outline"
         android:title="냉장고" />
 

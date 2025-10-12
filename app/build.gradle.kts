@@ -50,30 +50,37 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
+
+    // Navigation (navGraphViewModels 기능을 포함합니다)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
-    implementation(libs.okhttp.logging.interceptor)
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.kotlinx.coroutines.android)
+
+    // Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Hilt (의존성 주입)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    // CameraX
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
-    implementation(libs.androidx.camera.extensions)
-    implementation(libs.ted.permission.normal)
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    // RecyclerView
     implementation(libs.androidx.recyclerview)
 
-    // ⭐ Hilt 의존성 추가 ⭐
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-
+    // 테스팅 라이브러리
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Desugar
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

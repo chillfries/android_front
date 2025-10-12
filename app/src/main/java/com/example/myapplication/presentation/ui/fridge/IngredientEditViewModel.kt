@@ -13,7 +13,6 @@ class IngredientEditViewModel @Inject constructor() : ViewModel() {
     private val _recognizedIngredients = MutableLiveData<List<String>>(emptyList())
     val recognizedIngredients: LiveData<List<String>> get() = _recognizedIngredients
 
-    // ⭐ 8. 화면을 벗어나도 유지될 임시 재료 목록
     private val _manualIngredients = MutableLiveData<List<Ingredient>>(emptyList())
     val manualIngredients: LiveData<List<Ingredient>> get() = _manualIngredients
 
@@ -21,7 +20,6 @@ class IngredientEditViewModel @Inject constructor() : ViewModel() {
         _recognizedIngredients.value = ingredients
     }
 
-    // ⭐ 8. 현재 폼 상태를 ViewModel에 저장하는 함수
     fun saveManualIngredients(ingredients: List<Ingredient>) {
         _manualIngredients.value = ingredients
     }
@@ -30,8 +28,8 @@ class IngredientEditViewModel @Inject constructor() : ViewModel() {
         _recognizedIngredients.value = emptyList()
     }
 
-    // ⭐ 8. 등록 완료 또는 완전 이탈 시 임시 데이터를 초기화하는 함수
-    fun clearAllTemporaryIngredients() {
+    // ⭐ 해결: 함수 이름을 'clearAllIngredients'로 변경
+    fun clearAllIngredients() {
         _recognizedIngredients.value = emptyList()
         _manualIngredients.value = emptyList()
     }

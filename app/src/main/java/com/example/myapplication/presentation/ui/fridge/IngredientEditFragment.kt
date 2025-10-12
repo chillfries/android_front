@@ -7,12 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentIngredientEditBinding
@@ -22,9 +22,6 @@ import com.example.myapplication.domain.model.Storage
 import com.example.myapplication.presentation.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeParseException
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -33,7 +30,8 @@ import java.util.Locale
 class IngredientEditFragment :
     BaseFragment<FragmentIngredientEditBinding>(FragmentIngredientEditBinding::inflate) {
 
-    private val editViewModel: IngredientEditViewModel by viewModels()
+    // ViewModel의 생존 범위를 Activity로 설정하여 데이터 유지
+    private val editViewModel: IngredientEditViewModel by activityViewModels()
     private val fridgeViewModel: FridgeViewModel by activityViewModels()
 
     private val ingredientFormBindings = mutableListOf<FragmentIngredientItemBinding>()
@@ -44,80 +42,83 @@ class IngredientEditFragment :
             if (isGranted) {
                 navigateToCameraFragment()
             } else {
-                Toast.makeText(
-                    requireContext(),
-                    "카메라 권한이 거부되었습니다.",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(requireContext(), "카메라 권한이 거부되었습니다.", Toast.LENGTH_LONG).show()
             }
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 카메라 화면에서 결과 받아오기
+        // 1. 뒤로 가기 버튼 처리: ViewModel 데이터 초기화 후 화면 종료
+        val backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                editViewModel.clearAllIngredients()
+                findNavController().popBackStack()
+                remove() // 콜백 중복 호출 방지
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+
+        // 2. 카메라 결과 처리: detach/attach 대신, 직접 재료 폼을 추가하는 방식으로 변경
         setFragmentResultListener("camera_result") { _, bundle ->
             val recognized = bundle.getStringArrayList("recognized_ingredients")
             if (!recognized.isNullOrEmpty()) {
-                editViewModel.addRecognizedIngredients(recognized)
+                // 기존에 입력하던 내용이 비어있는 첫 번째 폼에 채워넣기
+                val firstEmptyForm = ingredientFormBindings.firstOrNull { it.editTextItemName.text.isNullOrBlank() }
+                if (firstEmptyForm != null) {
+                    firstEmptyForm.editTextItemName.setText(recognized.first())
+                    recognized.drop(1).forEach { addIngredientForm(Ingredient(name = it, quantity = 1, unit = "개", storageLocation = "", expiryDate = Date())) }
+                } else {
+                    recognized.forEach { addIngredientForm(Ingredient(name = it, quantity = 1, unit = "개", storageLocation = "", expiryDate = Date())) }
+                }
             }
         }
 
+        // 3. 사용 가능한 저장 공간 목록 관찰
         fridgeViewModel.storages.observe(viewLifecycleOwner) { storages ->
             availableStorages = storages
-            ingredientFormBindings.forEach { itemBinding ->
-                setupStorageDropdown(itemBinding)
-            }
+            ingredientFormBindings.forEach { itemBinding -> setupStorageDropdown(itemBinding) }
         }
 
+        // 4. 화면이 다시 생성될 때 UI 복원
         binding.ingredientFormContainer.removeAllViews()
         ingredientFormBindings.clear()
-
         restoreFormsFromViewModel()
 
+        // 5. 버튼 리스너 설정
         binding.buttonAddIngredientText.setOnClickListener { addIngredientForm() }
         binding.fabScanIngredient.setOnClickListener { checkCameraPermissionAndRequest() }
-
         binding.buttonRegisterAll.setOnClickListener {
             registerAllIngredients()
-            editViewModel.clearAllTemporaryIngredients()
+            editViewModel.clearAllIngredients()
             findNavController().popBackStack()
         }
 
         updateRegisterButtonState()
     }
 
-    private fun restoreFormsFromViewModel() {
-        val manualList = editViewModel.manualIngredients.value
-        val recognizedList = editViewModel.recognizedIngredients.value
-
-        when {
-            !recognizedList.isNullOrEmpty() -> {
-                recognizedList.map { Ingredient(name = it, quantity = 1, unit = "개", expiryDate = Date(), storageLocation = "") }
-                    .forEach { addIngredientForm(it) }
-                editViewModel.clearRecognizedIngredients()
-            }
-            !manualList.isNullOrEmpty() -> {
-                manualList.forEach { addIngredientForm(it) }
-            }
-            else -> {
-                addIngredientForm()
-            }
-        }
-    }
-
     override fun onPause() {
         super.onPause()
+        // 화면을 벗어날 때(카메라 이동 등) 현재 UI의 내용을 ViewModel에 저장
         val currentIngredients = getCurrentFormIngredients()
-        editViewModel.saveManualIngredients(currentIngredients)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (isRemoving) {
-            editViewModel.clearAllTemporaryIngredients()
+        if (currentIngredients.isNotEmpty()) {
+            editViewModel.saveManualIngredients(currentIngredients)
         }
     }
+
+    private fun restoreFormsFromViewModel() {
+        val ingredientsToRestore = editViewModel.manualIngredients.value
+        // 저장된 내용이 있으면 복원
+        if (!ingredientsToRestore.isNullOrEmpty()) {
+            ingredientsToRestore.forEach { addIngredientForm(it) }
+        }
+        // 만약 복원 후에도 폼이 하나도 없다면, 빈 폼 하나를 추가
+        if (ingredientFormBindings.isEmpty()) {
+            addIngredientForm()
+        }
+    }
+
+    // --- 이하 코드는 UI 요소를 제어하는 함수들입니다 (수정 없음) ---
 
     private fun addIngredientForm(initialIngredient: Ingredient? = null) {
         val inflater = LayoutInflater.from(context)
