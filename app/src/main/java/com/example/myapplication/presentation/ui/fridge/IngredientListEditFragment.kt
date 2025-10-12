@@ -22,7 +22,6 @@ class IngredientListEditFragment : BaseFragment<FragmentIngredientListEditBindin
     private val args: IngredientListEditFragmentArgs by navArgs()
     private lateinit var listAdapter: IngredientListAdapter
 
-    // 수정된 재료들을 임시 저장할 맵 (Key: 재료 ID, Value: 수정된 Ingredient 객체)
     private val updatedIngredients = mutableMapOf<Long, Ingredient>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -51,6 +50,7 @@ class IngredientListEditFragment : BaseFragment<FragmentIngredientListEditBindin
     }
 
     private fun setupRecyclerView() {
+        // ⭐ 9. 어댑터 생성 시 allStorages 목록을 전달
         listAdapter = IngredientListAdapter(
             allStorages = viewModel.storages.value ?: emptyList(),
             onDeleteClick = { ingredient ->
@@ -60,9 +60,8 @@ class IngredientListEditFragment : BaseFragment<FragmentIngredientListEditBindin
             onIngredientUpdate = { updatedIngredient ->
                 updatedIngredients[updatedIngredient.id] = updatedIngredient
             },
-            // 날짜 선택 클릭 시 DatePickerDialog를 보여주는 람다 전달
-            onExpiryDateClick = { _, onDateSelected ->
-                showDatePicker(onDateSelected)
+            onExpiryDateClick = { ingredient, onDateSelected ->
+                showDatePicker(ingredient.expiryDate, onDateSelected)
             }
         )
         binding.rvIngredientList.apply {
@@ -74,7 +73,6 @@ class IngredientListEditFragment : BaseFragment<FragmentIngredientListEditBindin
     private fun observeViewModel(storageName: String) {
         viewModel.ingredients.observe(viewLifecycleOwner) { allIngredients ->
             val ingredientsInStorage = allIngredients.filter { it.storageLocation == storageName }
-            // submitList를 호출하기 전에 수정 맵에 있는 내용으로 최신 데이터를 반영
             val currentList = ingredientsInStorage.map {
                 updatedIngredients[it.id] ?: it
             }
@@ -82,9 +80,8 @@ class IngredientListEditFragment : BaseFragment<FragmentIngredientListEditBindin
         }
     }
 
-    // DatePickerDialog를 생성하고 보여주는 함수
-    private fun showDatePicker(onDateSelected: (Date) -> Unit) {
-        val calendar = Calendar.getInstance()
+    private fun showDatePicker(initialDate: Date, onDateSelected: (Date) -> Unit) {
+        val calendar = Calendar.getInstance().apply { time = initialDate }
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)

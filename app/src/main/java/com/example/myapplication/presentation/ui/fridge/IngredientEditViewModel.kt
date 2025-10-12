@@ -3,7 +3,6 @@ package com.example.myapplication.presentation.ui.fridge
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-// ⭐ 해결 1: 올바른 Ingredient 모델 클래스를 import 합니다. ⭐
 import com.example.myapplication.domain.model.Ingredient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -11,49 +10,29 @@ import javax.inject.Inject
 @HiltViewModel
 class IngredientEditViewModel @Inject constructor() : ViewModel() {
 
-    // ⭐ 해결 2: LiveData 타입을 List로 일치시키고, 내부적으로만 MutableList를 사용합니다. ⭐
-    // 외부 공개용 (읽기 전용)
-    private val _recognizedIngredients = MutableLiveData<List<Ingredient>>(emptyList())
-    val recognizedIngredients: LiveData<List<Ingredient>> get() = _recognizedIngredients
+    private val _recognizedIngredients = MutableLiveData<List<String>>(emptyList())
+    val recognizedIngredients: LiveData<List<String>> get() = _recognizedIngredients
 
-    // 화면 회전 등 상태 복원용
+    // ⭐ 8. 화면을 벗어나도 유지될 임시 재료 목록
     private val _manualIngredients = MutableLiveData<List<Ingredient>>(emptyList())
     val manualIngredients: LiveData<List<Ingredient>> get() = _manualIngredients
 
-    // 편집 대상 재료
-    private val _ingredientToEdit = MutableLiveData<Ingredient?>()
-    val ingredientToEdit: LiveData<Ingredient?> get() = _ingredientToEdit
-
-
-    fun selectIngredientForEdit(ingredient: Ingredient) {
-        _ingredientToEdit.value = ingredient
+    fun addRecognizedIngredients(ingredients: List<String>) {
+        _recognizedIngredients.value = ingredients
     }
 
-    fun clearIngredientToEdit() {
-        _ingredientToEdit.value = null
-    }
-
-    fun addRecognizedIngredient(ingredient: Ingredient) {
-        // 기존 리스트를 가져와서 새 재료를 추가한 후 LiveData에 다시 설정
-        val currentList = _recognizedIngredients.value?.toMutableList() ?: mutableListOf()
-        currentList.add(ingredient)
-        _recognizedIngredients.value = currentList
-    }
-
+    // ⭐ 8. 현재 폼 상태를 ViewModel에 저장하는 함수
     fun saveManualIngredients(ingredients: List<Ingredient>) {
         _manualIngredients.value = ingredients
-    }
-
-    fun clearManualIngredients() {
-        _manualIngredients.value = emptyList()
     }
 
     fun clearRecognizedIngredients() {
         _recognizedIngredients.value = emptyList()
     }
 
-    fun clearIngredients() {
-        clearRecognizedIngredients()
-        clearManualIngredients()
+    // ⭐ 8. 등록 완료 또는 완전 이탈 시 임시 데이터를 초기화하는 함수
+    fun clearAllTemporaryIngredients() {
+        _recognizedIngredients.value = emptyList()
+        _manualIngredients.value = emptyList()
     }
 }

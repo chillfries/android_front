@@ -1,85 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:paddingStart="16dp"
     android:paddingEnd="8dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    android:gravity="center_vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/et_ingredient_name"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_weight="2.5"
+        android:hint="재료명"
+        android:inputType="text"
+        android:textSize="14sp"
+        android:background="?attr/editTextBackground"
+        android:importantForAutofill="no" />
 
-        <EditText
-            android:id="@+id/et_ingredient_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:hint="재료명"
-            android:inputType="text"
-            android:textSize="14sp"
-            android:autofillHints="" />
-
-        <EditText
-            android:id="@+id/et_ingredient_quantity"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:hint="수량"
-            android:inputType="number"
-            android:textSize="14sp"
-            android:autofillHints="" />
-
-        <ImageButton
-            android:id="@+id/btn_delete"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="삭제"
-            android:src="@drawable/ic_close" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/et_ingredient_quantity"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:layout_weight="0.8"
+        android:hint="수량"
+        android:inputType="number"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:background="?attr/editTextBackground"
+        android:importantForAutofill="no" />
 
-        <EditText
-            android:id="@+id/et_ingredient_expiry_date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:focusable="false"
-            android:gravity="center"
-            android:hint="소비기한"
-            android:inputType="none"
-            android:textSize="14sp"
-            android:autofillHints="" />
+    <EditText
+        android:id="@+id/et_ingredient_expiry_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:hint="소비기한"
+        android:focusable="false"
+        android:inputType="none"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:background="?attr/editTextBackground"
+        android:importantForAutofill="no" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp">
+    <AutoCompleteTextView
+        android:id="@+id/auto_complete_storage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:inputType="none"
+        android:textSize="14sp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:hint="장소"
+        android:background="?attr/editTextBackground"
+        android:importantForAutofill="no" />
 
-            <AutoCompleteTextView
-                android:id="@+id/auto_complete_storage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:textSize="14sp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-    </LinearLayout>
+    <ImageButton
+        android:id="@+id/btn_delete"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_close"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="삭제" />
 
 </LinearLayout>

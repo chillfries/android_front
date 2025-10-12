@@ -13,13 +13,18 @@
 
     <color name="color_background">#FFFFFFFF</color>
     <color name="color_surface">#FFF8F8F8</color>
+    <color name="color_surface_variant">#FFF0F0F0</color>
     <color name="color_light_gray">#FFF0F0F0</color>
-    <color name="color_text_dark">#FF222222</color>
-    <color name="color_text_medium">#FF666666</color>
-    <color name="color_text_light">#FFBBBBBB</color>
-    <color name="color_divider">#FFE0E0E0</color>
-    <color name="color_primary">#FFE6F3FF</color>
-    <color name="color_on_primary">#FF007AFF</color>
+
+    <color name="color_text_dark">#FF1A1A1A</color>
+    <color name="color_text_medium">#FF555555</color>
+    <color name="color_text_light">#FF888888</color>
+
+    <color name="color_divider">#FFEAEAEA</color>
+    <color name="color_divider_strong">#FFD0D0D0</color>
+
+    <color name="color_primary">#E8DDFF</color>
+    <color name="color_on_primary">#FFFFFFFF</color>
     <color name="color_warning_light">#FFFFF3E6</color>
     <color name="color_warning_dark">#FFFF9800</color>
 

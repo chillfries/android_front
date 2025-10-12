@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.androidx.camera.extensions)
     implementation(libs.ted.permission.normal)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(libs.androidx.recyclerview)
 
     // ⭐ Hilt 의존성 추가 ⭐
     implementation(libs.hilt.android)

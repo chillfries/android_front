@@ -14,13 +14,15 @@
 
     </style>
 
-    <style name="TextAppearance.App.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+    <style name="TextAppearance.App.HeadlineLarge"
+        parent="TextAppearance.Material3.HeadlineLarge">
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">28sp</item>
     </style>
 
-    <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+    <style name="TextAppearance.App.BodyMedium"
+        parent="TextAppearance.Material3.BodyMedium">
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 </resources>

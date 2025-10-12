@@ -3,6 +3,7 @@ package com.example.myapplication.presentation.ui.fridge
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
@@ -14,71 +15,61 @@ class StorageBoxAdapter(
     private var storages: List<Storage>,
     private var ingredientsByStorage: Map<Long, List<Ingredient>>,
     private val onIngredientClick: (Ingredient) -> Unit,
-    private val onStorageBoxClick: (Storage) -> Unit, // ⭐ 저장 공간 박스 전체 클릭 리스너
+    private val onStorageBoxClick: (Storage) -> Unit,
     private val onStorageSettingsClick: (Storage) -> Unit
 ) : RecyclerView.Adapter<StorageBoxAdapter.StorageBoxViewHolder>() {
 
-    // 각 저장 공간의 재료 슬라이더(RecyclerView)는 각자의 어댑터를 가집니다.
     private val ingredientAdapters = mutableMapOf<Long, IngredientIconAdapter>()
 
-    class StorageBoxViewHolder(
-        val binding: ItemStorageBoxBinding
-    ) : RecyclerView.ViewHolder(binding.root)
+    class StorageBoxViewHolder(val binding: ItemStorageBoxBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StorageBoxViewHolder {
-        val binding = ItemStorageBoxBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = ItemStorageBoxBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return StorageBoxViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: StorageBoxViewHolder, position: Int) {
         val storage = storages[position]
         val context = holder.itemView.context
-
-        holder.binding.textStorageName.text = storage.name
-
-        // 아이콘 리소스 이름으로 실제 Drawable ID를 찾아서 설정
-        val iconResId = context.resources.getIdentifier(
-            storage.iconResName,
-            "drawable",
-            context.packageName
-        )
-        holder.binding.imageStorageIcon.setImageResource(if (iconResId != 0) iconResId else R.drawable.ic_fridge)
-
-        // "정리되지 않은 재료" 같은 기본 저장 공간은 설정 버튼을 숨김
-        if (storage.isDefault) {
-            holder.binding.buttonStorageSettings.visibility = View.GONE
-            holder.binding.buttonStorageSettings.setOnClickListener(null)
-        } else {
-            holder.binding.buttonStorageSettings.visibility = View.VISIBLE
-            holder.binding.buttonStorageSettings.setOnClickListener {
-                onStorageSettingsClick(storage)
-            }
-        }
-
-        // ⭐ 저장 공간 박스 전체에 대한 클릭 리스너 설정
-        holder.binding.root.setOnClickListener {
-            onStorageBoxClick(storage)
-        }
-
-        // 현재 저장 공간에 해당하는 재료 목록 가져오기
         val currentIngredients = ingredientsByStorage[storage.id] ?: emptyList()
 
-        // 재료 슬라이더(내부 RecyclerView) 설정
-        if (ingredientAdapters[storage.id] == null) {
-            // 어댑터가 없으면 새로 생성
-            val adapter = IngredientIconAdapter(currentIngredients, onIngredientClick)
-            holder.binding.recyclerIngredientSlider.apply {
-                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-                this.adapter = adapter
+        with(holder.binding) {
+            textStorageName.text = storage.name
+            // ⭐ 해결: ID를 textIngredientCount로 올바르게 참조
+            textIngredientCount.text = context.getString(R.string.ingredient_count, currentIngredients.size)
+
+            val iconResId = context.resources.getIdentifier(storage.iconResName, "drawable", context.packageName)
+            imageStorageIcon.setImageResource(if (iconResId != 0) iconResId else R.drawable.ic_fridge)
+
+            root.setOnClickListener { onStorageBoxClick(storage) }
+
+            if (storage.isDefault) {
+                buttonStorageSettings.visibility = View.GONE
+                containerStorageBox.setBackgroundColor(ContextCompat.getColor(context, R.color.color_primary))
+            } else {
+                buttonStorageSettings.visibility = View.VISIBLE
+                containerStorageBox.setBackgroundColor(ContextCompat.getColor(context, R.color.color_surface))
+                buttonStorageSettings.setOnClickListener { onStorageSettingsClick(storage) }
             }
-            ingredientAdapters[storage.id] = adapter
-        } else {
-            // 어댑터가 이미 있으면 데이터만 업데이트
-            ingredientAdapters[storage.id]?.updateIngredients(currentIngredients)
+
+            if (currentIngredients.isEmpty()) {
+                divider.visibility = View.GONE
+                recyclerIngredientSlider.visibility = View.GONE
+            } else {
+                divider.visibility = View.VISIBLE
+                recyclerIngredientSlider.visibility = View.VISIBLE
+            }
+
+            if (ingredientAdapters[storage.id] == null) {
+                val adapter = IngredientIconAdapter(currentIngredients, onIngredientClick)
+                recyclerIngredientSlider.apply {
+                    layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                    this.adapter = adapter
+                }
+                ingredientAdapters[storage.id] = adapter
+            } else {
+                ingredientAdapters[storage.id]?.updateIngredients(currentIngredients)
+            }
         }
     }
 
@@ -87,6 +78,6 @@ class StorageBoxAdapter(
     fun updateData(newStorages: List<Storage>, newIngredientsByStorage: Map<Long, List<Ingredient>>) {
         storages = newStorages
         ingredientsByStorage = newIngredientsByStorage
-        notifyDataSetChanged() // 데이터가 바뀌었음을 알리고 UI를 새로 그림
+        notifyDataSetChanged()
     }
 }

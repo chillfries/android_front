@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
@@ -20,11 +21,13 @@ import com.example.myapplication.domain.model.Ingredient
 import com.example.myapplication.domain.model.Storage
 import com.example.myapplication.presentation.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeParseException
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class IngredientEditFragment :
@@ -52,6 +55,14 @@ class IngredientEditFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 카메라 화면에서 결과 받아오기
+        setFragmentResultListener("camera_result") { _, bundle ->
+            val recognized = bundle.getStringArrayList("recognized_ingredients")
+            if (!recognized.isNullOrEmpty()) {
+                editViewModel.addRecognizedIngredients(recognized)
+            }
+        }
+
         fridgeViewModel.storages.observe(viewLifecycleOwner) { storages ->
             availableStorages = storages
             ingredientFormBindings.forEach { itemBinding ->
@@ -59,76 +70,79 @@ class IngredientEditFragment :
             }
         }
 
-        val ingredientToEdit = fridgeViewModel.ingredientToEdit.value
-
         binding.ingredientFormContainer.removeAllViews()
         ingredientFormBindings.clear()
 
-        if (ingredientToEdit != null) {
-            binding.titleText.text = "재료 편집"
-            addIngredientForm(ingredientToEdit)
-            binding.buttonAddIngredientText.visibility = View.GONE
-        } else {
-            binding.titleText.text = "재료 추가"
-            binding.buttonAddIngredientText.visibility = View.VISIBLE
+        restoreFormsFromViewModel()
 
-            val manualList = editViewModel.manualIngredients.value
-            val recognizedList = editViewModel.recognizedIngredients.value
+        binding.buttonAddIngredientText.setOnClickListener { addIngredientForm() }
+        binding.fabScanIngredient.setOnClickListener { checkCameraPermissionAndRequest() }
 
-            when {
-                !manualList.isNullOrEmpty() -> {
-                    manualList.forEach { addIngredientForm(it) }
-                    editViewModel.clearManualIngredients()
-                }
-                !recognizedList.isNullOrEmpty() -> {
-                    recognizedList.forEach { addIngredientForm(it) }
-                    editViewModel.clearRecognizedIngredients()
-                }
-                else -> {
-                    addIngredientForm()
-                }
-            }
-        }
-
-        binding.buttonAddIngredientText.setOnClickListener {
-            addIngredientForm()
-        }
-        binding.fabScanIngredient.setOnClickListener {
-            checkCameraPermissionAndRequest()
-        }
         binding.buttonRegisterAll.setOnClickListener {
             registerAllIngredients()
+            editViewModel.clearAllTemporaryIngredients()
+            findNavController().popBackStack()
         }
 
         updateRegisterButtonState()
     }
 
+    private fun restoreFormsFromViewModel() {
+        val manualList = editViewModel.manualIngredients.value
+        val recognizedList = editViewModel.recognizedIngredients.value
+
+        when {
+            !recognizedList.isNullOrEmpty() -> {
+                recognizedList.map { Ingredient(name = it, quantity = 1, unit = "개", expiryDate = Date(), storageLocation = "") }
+                    .forEach { addIngredientForm(it) }
+                editViewModel.clearRecognizedIngredients()
+            }
+            !manualList.isNullOrEmpty() -> {
+                manualList.forEach { addIngredientForm(it) }
+            }
+            else -> {
+                addIngredientForm()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val currentIngredients = getCurrentFormIngredients()
+        editViewModel.saveManualIngredients(currentIngredients)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isRemoving) {
+            editViewModel.clearAllTemporaryIngredients()
+        }
+    }
+
     private fun addIngredientForm(initialIngredient: Ingredient? = null) {
         val inflater = LayoutInflater.from(context)
-        val itemBinding =
-            FragmentIngredientItemBinding.inflate(inflater, binding.ingredientFormContainer, false)
-
+        val itemBinding = FragmentIngredientItemBinding.inflate(inflater, binding.ingredientFormContainer, false)
         ingredientFormBindings.add(itemBinding)
 
         val container = binding.ingredientFormContainer
         val addButton = binding.buttonAddIngredientText
-
         container.removeView(addButton)
         container.addView(itemBinding.root)
         container.addView(addButton)
 
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
         if (initialIngredient != null) {
             itemBinding.editTextItemName.setText(initialIngredient.name)
-            itemBinding.editTextItemQuantity.setText(initialIngredient.quantity.toString())
-            itemBinding.editTextItemExpiryDate.setText(initialIngredient.expiryDate.toLocalDate().toString())
+            itemBinding.editTextItemQuantity.setText(if (initialIngredient.quantity > 0) initialIngredient.quantity.toString() else "1")
+            itemBinding.editTextItemExpiryDate.setText(sdf.format(initialIngredient.expiryDate))
         } else {
-            itemBinding.editTextItemExpiryDate.setText(LocalDate.now().toString())
+            itemBinding.editTextItemExpiryDate.setText(sdf.format(Date()))
             itemBinding.inputLayoutName.requestFocus()
         }
 
         itemBinding.editTextItemName.doOnTextChanged { _, _, _, _ -> updateRegisterButtonState() }
         itemBinding.editTextItemExpiryDate.setOnClickListener { showDatePicker(itemBinding) }
-        itemBinding.editTextItemExpiryDate.doOnTextChanged { _, _, _, _ -> updateRegisterButtonState() }
         itemBinding.buttonRemove.setOnClickListener { removeIngredientForm(itemBinding) }
 
         setupStorageDropdown(itemBinding, initialIngredient?.storageLocation)
@@ -139,154 +153,91 @@ class IngredientEditFragment :
         binding.ingredientFormContainer.removeView(itemBinding.root)
         ingredientFormBindings.remove(itemBinding)
         updateRegisterButtonState()
-
         if (ingredientFormBindings.isEmpty()) {
-            if (fridgeViewModel.ingredientToEdit.value == null) {
-                addIngredientForm()
-            } else {
-                fridgeViewModel.deleteIngredient(fridgeViewModel.ingredientToEdit.value!!.id)
-                fridgeViewModel.clearIngredientToEdit()
-                Toast.makeText(requireContext(), "재료가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack()
-            }
+            addIngredientForm()
         }
     }
 
-    private fun setupStorageDropdown(
-        itemBinding: FragmentIngredientItemBinding,
-        initialLocation: String? = null
-    ) {
+    private fun setupStorageDropdown(itemBinding: FragmentIngredientItemBinding, initialLocation: String? = null) {
         val storageNames = availableStorages.map { it.name }.ifEmpty { listOf("정리되지 않은 재료") }
         val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_menu_item, storageNames)
         val autoCompleteTextView = itemBinding.autoCompleteStorage
-
         autoCompleteTextView.setAdapter(adapter)
 
-        val selectedStorageName = initialLocation ?: storageNames.first()
+        val selectedStorageName = if (initialLocation.isNullOrBlank() || !storageNames.contains(initialLocation)) storageNames.first() else initialLocation
         autoCompleteTextView.setText(selectedStorageName, false)
         autoCompleteTextView.setOnClickListener { autoCompleteTextView.showDropDown() }
     }
 
     private fun registerAllIngredients() {
         val ingredientsToSave = getCurrentFormIngredients()
-
         if (ingredientsToSave.isNotEmpty()) {
-            val ingredientToEdit = fridgeViewModel.ingredientToEdit.value
-
-            if (ingredientToEdit != null) {
-                val updatedIngredient = ingredientsToSave.first().copy(id = ingredientToEdit.id)
-                fridgeViewModel.saveIngredient(updatedIngredient)
-                Toast.makeText(
-                    requireContext(),
-                    "재료 '${updatedIngredient.name}'가(이) 수정되었습니다.",
-                    Toast.LENGTH_LONG
-                ).show()
-
-            } else {
-                fridgeViewModel.addIngredients(ingredientsToSave)
-                Toast.makeText(
-                    requireContext(),
-                    "총 ${ingredientsToSave.size}개의 재료가 냉장고에 등록되었습니다.",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-            editViewModel.clearIngredients()
-            fridgeViewModel.clearIngredientToEdit()
-            findNavController().popBackStack(R.id.fridgeFragment, false)
+            fridgeViewModel.addIngredients(ingredientsToSave)
+            Toast.makeText(requireContext(), "총 ${ingredientsToSave.size}개의 재료가 등록되었습니다.", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(requireContext(), "등록할 유효한 재료가 없습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun getCurrentFormIngredients(): List<Ingredient> {
-        return ingredientFormBindings
-            .mapNotNull { itemBinding ->
-                val name = itemBinding.editTextItemName.text.toString().trim()
-                if (name.isBlank()) return@mapNotNull null
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return ingredientFormBindings.mapNotNull { itemBinding ->
+            val name = itemBinding.editTextItemName.text.toString().trim()
+            if (name.isBlank()) return@mapNotNull null
 
-                val quantityString =
-                    itemBinding.editTextItemQuantity.text.toString().trim().ifEmpty { "1" }
-                val expiryDateString = itemBinding.editTextItemExpiryDate.text.toString().trim()
+            val quantityString = itemBinding.editTextItemQuantity.text.toString().trim().ifEmpty { "1" }
+            val expiryDateString = itemBinding.editTextItemExpiryDate.text.toString().trim()
+            val quantityInt = quantityString.toIntOrNull() ?: 1
+            val unitString = "개"
 
-                val quantityInt = quantityString.toIntOrNull() ?: 1
-                val unitString = "개"
-
-                val expiryDate: Date = try {
-                    LocalDate.parse(expiryDateString).toDate()
-                } catch (e: DateTimeParseException) {
-                    LocalDate.now().toDate()
-                }
-
-                Ingredient(
-                    id = 0L,
-                    name = name,
-                    quantity = quantityInt,
-                    unit = unitString,
-                    expiryDate = expiryDate,
-                    storageLocation = itemBinding.autoCompleteStorage.text.toString().trim()
-                )
+            val expiryDate: Date = try {
+                sdf.parse(expiryDateString) ?: Date()
+            } catch (e: Exception) {
+                Date()
             }
+
+            Ingredient(
+                id = 0L,
+                name = name,
+                quantity = quantityInt,
+                unit = unitString,
+                expiryDate = expiryDate,
+                storageLocation = itemBinding.autoCompleteStorage.text.toString().trim()
+            )
+        }
     }
 
     private fun updateRegisterButtonState() {
-        val hasAnyValidName = ingredientFormBindings.any {
+        binding.buttonRegisterAll.isEnabled = ingredientFormBindings.any {
             it.editTextItemName.text.toString().trim().isNotBlank()
         }
-        binding.buttonRegisterAll.isEnabled = hasAnyValidName
     }
 
     private fun showDatePicker(itemBinding: FragmentIngredientItemBinding) {
         val calendar = Calendar.getInstance()
-        val editText = itemBinding.editTextItemExpiryDate
-
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         try {
-            val date = LocalDate.parse(editText.text.toString())
-            calendar.set(date.year, date.monthValue - 1, date.dayOfMonth)
-        } catch (e: Exception) {
-            // 날짜 파싱 실패 시 현재 날짜 사용
-        }
+            val date = sdf.parse(itemBinding.editTextItemExpiryDate.text.toString())
+            if (date != null) calendar.time = date
+        } catch (e: Exception) { /* 파싱 실패 시 현재 날짜 사용 */ }
 
-        val datePickerDialog = DatePickerDialog(
+        DatePickerDialog(
             requireContext(),
-            { _, selectedYear, selectedMonth, selectedDay ->
-                val selectedDate = LocalDate.of(selectedYear, selectedMonth + 1, selectedDay)
-                editText.setText(selectedDate.toString())
-                updateRegisterButtonState()
+            { _, year, month, dayOfMonth ->
+                calendar.set(year, month, dayOfMonth)
+                itemBinding.editTextItemExpiryDate.setText(sdf.format(calendar.time))
             },
-            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(
-                Calendar.DAY_OF_MONTH
-            )
-        )
-        datePickerDialog.show()
-    }
-
-    private fun LocalDate.toDate(): Date {
-        return Date.from(this.atStartOfDay(ZoneId.systemDefault()).toInstant())
-    }
-
-    private fun Date.toLocalDate(): LocalDate {
-        return this.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (fridgeViewModel.ingredientToEdit.value == null && ingredientFormBindings.isNotEmpty()) {
-            val currentIngredients = getCurrentFormIngredients()
-            editViewModel.saveManualIngredients(currentIngredients)
-        }
-        fridgeViewModel.clearIngredientToEdit()
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
     private fun checkCameraPermissionAndRequest() {
         when {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED -> {
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED -> {
                 navigateToCameraFragment()
             }
-
             else -> {
                 requestPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
@@ -297,17 +248,7 @@ class IngredientEditFragment :
         try {
             findNavController().navigate(R.id.action_ingredientEditFragment_to_cameraFragment)
         } catch (e: Exception) {
-            Toast.makeText(
-                requireContext(),
-                "ERROR: 카메라 페이지 이동 경로를 찾을 수 없습니다.",
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(requireContext(), "카메라 화면으로 이동할 수 없습니다.", Toast.LENGTH_LONG).show()
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // BaseFragment에서 _binding = null 처리를 해주므로, 여기서는 추가 작업만 수행
-        ingredientFormBindings.clear()
     }
 }

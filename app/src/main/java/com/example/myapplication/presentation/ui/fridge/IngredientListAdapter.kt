@@ -20,7 +20,6 @@ class IngredientListAdapter(
     private val allStorages: List<Storage>,
     private val onDeleteClick: (Ingredient) -> Unit,
     private val onIngredientUpdate: (Ingredient) -> Unit,
-    // 날짜 선택 다이얼로그를 띄우기 위한 콜백 추가
     private val onExpiryDateClick: (Ingredient, (Date) -> Unit) -> Unit
 ) : ListAdapter<Ingredient, IngredientListAdapter.IngredientViewHolder>(IngredientDiffCallback()) {
 
@@ -36,12 +35,11 @@ class IngredientListAdapter(
     inner class IngredientViewHolder(private val binding: ItemIngredientEditBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        // 리스너들을 멤버 변수로 관리하여 제거/추가가 가능하도록 함
         private var nameWatcher: TextWatcher? = null
         private var quantityWatcher: TextWatcher? = null
 
         fun bind(ingredient: Ingredient) {
-            // 데이터를 바인딩하기 전에 이전에 설정된 리스너들을 모두 제거하여 재활용 오류 방지
+            // 리스너를 null로 설정하여 무한 루프 방지
             nameWatcher?.let { binding.etIngredientName.removeTextChangedListener(it) }
             quantityWatcher?.let { binding.etIngredientQuantity.removeTextChangedListener(it) }
             binding.autoCompleteStorage.onItemClickListener = null
@@ -59,7 +57,7 @@ class IngredientListAdapter(
             binding.autoCompleteStorage.setAdapter(adapter)
             binding.autoCompleteStorage.setText(ingredient.storageLocation, false)
 
-            // 새로운 데이터에 맞는 리스너들을 다시 설정
+            // 이벤트 리스너 다시 설정
             binding.btnDelete.setOnClickListener {
                 if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
                     onDeleteClick(getItem(bindingAdapterPosition))
@@ -83,9 +81,7 @@ class IngredientListAdapter(
             }
             binding.etIngredientExpiryDate.setOnClickListener {
                 if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
-                    // 클릭된 재료와, 날짜가 선택되었을 때 실행할 콜백을 Fragment로 전달
                     onExpiryDateClick(getItem(bindingAdapterPosition)) { newDate ->
-                        // 날짜 선택이 완료되면 UI를 업데이트하고, 변경된 내용을 Fragment로 전달
                         binding.etIngredientExpiryDate.setText(sdf.format(newDate))
                         if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
                             onIngredientUpdate(getItem(bindingAdapterPosition).copy(expiryDate = newDate))
@@ -96,7 +92,6 @@ class IngredientListAdapter(
         }
     }
 
-    // DiffUtil 설정: RecyclerView가 어떤 아이템이 변경되었는지 효율적으로 감지하도록 함
     private class IngredientDiffCallback : DiffUtil.ItemCallback<Ingredient>() {
         override fun areItemsTheSame(oldItem: Ingredient, newItem: Ingredient): Boolean {
             return oldItem.id == newItem.id
