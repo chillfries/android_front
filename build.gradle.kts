@@ -14,6 +14,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -27,7 +28,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            // ⭐ 2. 개발용(debug) 빌드 시 사용할 서버 주소를 추가합니다.
+            // 에뮬레이터에서 로컬 서버에 접속하기 위한 표준 주소입니다.
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
+        }
         release {
+            // ⭐ 3. 배포용(release) 빌드 시 사용할 서버 주소를 추가합니다.
+            buildConfigField("String", "BASE_URL", "\"https://api.your-production-domain.com/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -52,15 +60,13 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
 
-    // Navigation (navGraphViewModels 기능을 포함합니다)
+    // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Lifecycle
+    // Lifecycle & Coroutines
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
-
-    // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
     // Hilt (의존성 주입)
@@ -76,11 +82,21 @@ dependencies {
     // RecyclerView
     implementation(libs.androidx.recyclerview)
 
+    // Room (데이터베이스)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // Desugar for older APIs
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
     // 테스팅 라이브러리
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // Desugar
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    // ⭐ 4. Retrofit, OkHttp 의존성을 추가합니다.
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging.interceptor)
 }

@@ -1,16 +1,23 @@
 package com.example.myapplication.data.repository
 
 import com.example.myapplication.domain.repository.AuthRepository
+import com.example.myapplication.network.AuthApiService
+import com.example.myapplication.network.LoginResponse
+import com.example.myapplication.network.UserCreateRequest
+import com.example.myapplication.network.UserLoginRequest
+import retrofit2.Response
+import javax.inject.Inject
 
-class AuthRepositoryImpl : AuthRepository {
-    override fun login(email: String, password: String): Boolean {
-        return true
+// Hilt를 통해 AuthApiService를 주입받습니다.
+class AuthRepositoryImpl @Inject constructor(
+    private val authApi: AuthApiService
+) : AuthRepository {
+
+    override suspend fun login(user: UserLoginRequest): Response<LoginResponse> {
+        return authApi.login(user)
     }
 
-    override fun register(email: String, password: String, confirmPassword: String): Boolean {
-        if (password != confirmPassword) {
-            return false
-        }
-        return true
+    override suspend fun signup(user: UserCreateRequest): Response<Unit> {
+        return authApi.signup(user)
     }
 }

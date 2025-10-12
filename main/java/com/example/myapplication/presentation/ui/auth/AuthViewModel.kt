@@ -3,8 +3,12 @@ package com.example.myapplication.presentation.ui.auth
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.myapplication.domain.repository.AuthRepository
+import com.example.myapplication.network.UserCreateRequest
+import com.example.myapplication.network.UserLoginRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,42 +19,56 @@ class AuthViewModel @Inject constructor(
     private val _authMessage = MutableLiveData<String>()
     val authMessage: LiveData<String> get() = _authMessage
 
-    // ⭐ 수정: Boolean을 Nullable Boolean(Boolean?)으로 변경 ⭐
     private val _isAuthenticated = MutableLiveData<Boolean?>()
     val isAuthenticated: LiveData<Boolean?> get() = _isAuthenticated
 
     fun performLogin(email: String, password: String) {
-        val success = repository.login(email, password)
-        if (success) {
-            _authMessage.value = "로그인 성공!"
-            _isAuthenticated.value = true
-        } else {
-            _authMessage.value = "로그인 실패: 이메일 또는 비밀번호를 확인해주세요."
-            _isAuthenticated.value = false
+        if (email.isBlank() || password.isBlank()) {
+            _authMessage.value = "이메일과 비밀번호를 모두 입력해주세요."
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val response = repository.login(UserLoginRequest(email, password))
+                if (response.isSuccessful) {
+                    _authMessage.postValue("로그인 성공!")
+                    _isAuthenticated.postValue(true)
+                } else {
+                    _authMessage.postValue("로그인 실패: ${response.errorBody()?.string()}")
+                    _isAuthenticated.postValue(false)
+                }
+            } catch (e: Exception) {
+                _authMessage.postValue("네트워크 오류: ${e.message}")
+                _isAuthenticated.postValue(false)
+            }
         }
     }
 
-    fun performRegister(email: String, password: String, confirmPassword: String) {
-        if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+    // RegisterFragment에서 닉네임도 사용하므로 파라미터 추가
+    fun performRegister(nickname: String, email: String, password: String, confirmPassword: String) {
+        if (nickname.isBlank() || email.isBlank() || password.isBlank()) {
             _authMessage.value = "모든 정보를 입력해주세요."
-            _isAuthenticated.value = false
             return
         }
-
         if (password != confirmPassword) {
-            _authMessage.value = "비밀번호와 비밀번호 확인이 일치하지 않습니다."
-            _isAuthenticated.value = false
+            _authMessage.value = "비밀번호가 일치하지 않습니다."
             return
         }
 
-        val success = repository.register(email, password, confirmPassword)
-        if (success) {
-            _authMessage.value = "회원가입 성공! 로그인 해주세요."
-            // ⭐ 수정: 회원가입 성공 시에는 로그인 상태가 아니므로 null로 설정 ⭐
-            _isAuthenticated.value = null
-        } else {
-            _authMessage.value = "회원가입 실패: 다시 시도해주세요."
-            _isAuthenticated.value = false
+        viewModelScope.launch {
+            try {
+                val request = UserCreateRequest(nickname, email, password)
+                val response = repository.signup(request)
+                if (response.isSuccessful) {
+                    _authMessage.postValue("회원가입 성공! 로그인 해주세요.")
+                    _isAuthenticated.postValue(null) // 회원가입 성공 시 로그인 화면으로 돌아가야 하므로 null
+                } else {
+                    _authMessage.postValue("회원가입 실패: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                _authMessage.postValue("네트워크 오류: ${e.message}")
+            }
         }
     }
 }
