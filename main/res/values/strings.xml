@@ -7,5 +7,5 @@
     <string name="storage_settings_button_description">Storage Settings</string>
     <string name="add_ingredient_or_storage">Add Ingredient or Storage</string>
 
-    <string name="ingredient_count">%d ingredients</string>
+    <string name="ingredient_count">%d개 재료</string>
 </resources>

@@ -50,7 +50,7 @@ class IngredientListEditFragment : BaseFragment<FragmentIngredientListEditBindin
     }
 
     private fun setupRecyclerView() {
-        // ⭐ 9. 어댑터 생성 시 allStorages 목록을 전달
+        // ⭐ 해결: 어댑터 생성 시, ViewModel에서 allStorages 목록을 가져와 전달합니다.
         listAdapter = IngredientListAdapter(
             allStorages = viewModel.storages.value ?: emptyList(),
             onDeleteClick = { ingredient ->
@@ -82,15 +82,15 @@ class IngredientListEditFragment : BaseFragment<FragmentIngredientListEditBindin
 
     private fun showDatePicker(initialDate: Date, onDateSelected: (Date) -> Unit) {
         val calendar = Calendar.getInstance().apply { time = initialDate }
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-        DatePickerDialog(requireContext(), { _, selectedYear, selectedMonth, selectedDay ->
-            val newCalendar = Calendar.getInstance().apply {
-                set(selectedYear, selectedMonth, selectedDay)
-            }
-            onDateSelected(newCalendar.time)
-        }, year, month, day).show()
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val newCalendar = Calendar.getInstance().apply { set(year, month, dayOfMonth) }
+                onDateSelected(newCalendar.time)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 }

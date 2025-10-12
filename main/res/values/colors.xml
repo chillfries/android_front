@@ -31,4 +31,6 @@
     <color name="dday_expired_red">#D32F2F</color>
     <color name="dday_imminent_orange">#F57C00</color>
     <color name="dday_normal_green">#4CAF50</color>
+
+    <color name="white_translucent">#B3FFFFFF</color>
 </resources>

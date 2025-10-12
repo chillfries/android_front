@@ -28,6 +28,8 @@ import java.time.format.DateTimeParseException
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import androidx.activity.OnBackPressedCallback
+
 
 @AndroidEntryPoint
 class IngredientEditFragment :
@@ -44,35 +46,38 @@ class IngredientEditFragment :
             if (isGranted) {
                 navigateToCameraFragment()
             } else {
-                Toast.makeText(
-                    requireContext(),
-                    "카메라 권한이 거부되었습니다.",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(requireContext(), "카메라 권한이 거부되었습니다.", Toast.LENGTH_LONG).show()
             }
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 카메라 화면에서 결과 받아오기
+        val backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // ⭐ 해결: ViewModel에 정의된 clearAllIngredients 함수로 변경
+                editViewModel.clearAllIngredients()
+                findNavController().popBackStack()
+                remove()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+
         setFragmentResultListener("camera_result") { _, bundle ->
             val recognized = bundle.getStringArrayList("recognized_ingredients")
             if (!recognized.isNullOrEmpty()) {
                 editViewModel.addRecognizedIngredients(recognized)
+                parentFragmentManager.beginTransaction().detach(this).attach(this).commit()
             }
         }
 
         fridgeViewModel.storages.observe(viewLifecycleOwner) { storages ->
             availableStorages = storages
-            ingredientFormBindings.forEach { itemBinding ->
-                setupStorageDropdown(itemBinding)
-            }
+            ingredientFormBindings.forEach { itemBinding -> setupStorageDropdown(itemBinding) }
         }
 
         binding.ingredientFormContainer.removeAllViews()
         ingredientFormBindings.clear()
-
         restoreFormsFromViewModel()
 
         binding.buttonAddIngredientText.setOnClickListener { addIngredientForm() }
@@ -80,42 +85,28 @@ class IngredientEditFragment :
 
         binding.buttonRegisterAll.setOnClickListener {
             registerAllIngredients()
-            editViewModel.clearAllTemporaryIngredients()
+            // ⭐ 해결: ViewModel에 정의된 clearAllIngredients 함수로 변경
+            editViewModel.clearAllIngredients()
             findNavController().popBackStack()
         }
 
         updateRegisterButtonState()
     }
 
-    private fun restoreFormsFromViewModel() {
-        val manualList = editViewModel.manualIngredients.value
-        val recognizedList = editViewModel.recognizedIngredients.value
-
-        when {
-            !recognizedList.isNullOrEmpty() -> {
-                recognizedList.map { Ingredient(name = it, quantity = 1, unit = "개", expiryDate = Date(), storageLocation = "") }
-                    .forEach { addIngredientForm(it) }
-                editViewModel.clearRecognizedIngredients()
-            }
-            !manualList.isNullOrEmpty() -> {
-                manualList.forEach { addIngredientForm(it) }
-            }
-            else -> {
-                addIngredientForm()
-            }
-        }
-    }
-
     override fun onPause() {
         super.onPause()
         val currentIngredients = getCurrentFormIngredients()
-        editViewModel.saveManualIngredients(currentIngredients)
+        if (currentIngredients.isNotEmpty()) {
+            editViewModel.saveManualIngredients(currentIngredients)
+        }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (isRemoving) {
-            editViewModel.clearAllTemporaryIngredients()
+    private fun restoreFormsFromViewModel() {
+        val manualList = editViewModel.manualIngredients.value
+        if (!manualList.isNullOrEmpty()) {
+            manualList.forEach { addIngredientForm(it) }
+        } else {
+            addIngredientForm()
         }
     }
 
