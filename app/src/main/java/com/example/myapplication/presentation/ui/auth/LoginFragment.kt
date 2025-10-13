@@ -1,60 +1,57 @@
 package com.example.myapplication.presentation.ui.auth
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
-import com.example.myapplication.databinding.FragmentLoginBinding // FragmentLoginBinding 사용
-import com.example.myapplication.presentation.ui.auth.AuthViewModel
+import com.example.myapplication.databinding.FragmentLoginBinding
+import com.example.myapplication.presentation.MainActivity
+import com.example.myapplication.presentation.base.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
 
-class LoginFragment : Fragment(R.layout.fragment_login) {
+@AndroidEntryPoint
+// ✅ 'FragmentLoginLoginBinding'을 'FragmentLoginBinding'으로 수정
+class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
 
-    // ⭐ 수정: Fragment 범위(by viewModels()) -> Activity 범위(by viewModels({ requireActivity() })) ⭐
-    private val viewModel: AuthViewModel by viewModels({ requireActivity() })
-
-    private var _binding: FragmentLoginBinding? = null
-    // View Binding 인스턴스
-    private val binding get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    private val viewModel: AuthViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. LiveData 관찰: 사용자에게 메시지 표시
-        viewModel.authMessage.observe(viewLifecycleOwner) { message ->
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-        }
-
-        // ⭐ 2. 로그인 버튼 리스너 (ID: btn_continue) ⭐
+        // ✅ 버튼 ID를 레이아웃 파일에 맞게 'btnContinue'로 수정
         binding.btnContinue.setOnClickListener {
-            // ⭐ XML ID에 맞게 수정: et_email, et_password ⭐
-            val email = binding.etEmail.text.toString()
-            val password = binding.etPassword.text.toString()
-
-            viewModel.performLogin(email, password) // 비즈니스 로직 위임
+            // ✅ EditText ID를 레이아웃 파일에 맞게 'etEmail', 'etPassword'로 수정
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+            viewModel.performLogin(email, password)
         }
 
-        // ⭐ 3. 회원가입 텍스트 리스너 (ID: tv_register) ⭐
+        // ✅ TextView ID를 레이아웃 파일에 맞게 'tvRegister'로 수정
         binding.tvRegister.setOnClickListener {
-            // nav_auth.xml에 정의된 액션 ID를 사용
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
         }
+
+        observeViewModel()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun observeViewModel() {
+        viewModel.authMessage.observe(viewLifecycleOwner) { message ->
+            if (message.isNotEmpty()) {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        viewModel.loginSuccess.observe(viewLifecycleOwner) { isSuccess ->
+            if (isSuccess) {
+                val intent = Intent(activity, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
+                viewModel.onLoginSuccessHandled() // 이벤트 처리 후 상태 리셋
+            }
+        }
     }
 }

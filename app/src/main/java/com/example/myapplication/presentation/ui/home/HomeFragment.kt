@@ -1,35 +1,97 @@
 package com.example.myapplication.presentation.ui.home
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import com.example.myapplication.databinding.FragmentHomeBinding // View Binding 사용
+import android.view.inputmethod.EditorInfo // ⭐ import 추가
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.R
+import com.example.myapplication.databinding.FragmentHomeBinding
+import com.example.myapplication.presentation.base.BaseFragment
+import dagger.hilt.android.AndroidEntryPoint
 
-class HomeFragment : Fragment() {
+@AndroidEntryPoint
+class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
-    // View Binding 객체 선언
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        // View Binding으로 Fragment 레이아웃 연결
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    private val viewModel: HomeViewModel by viewModels()
+    private lateinit var recipeAdapter: RecommendedDishAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // 테스트용 코드: Fragment가 잘 열렸는지 확인
-        binding.textView.text = "홈 Fragment"
+
+        setupRecyclerView()
+        setupListeners() // ⭐ 리스너 설정 함수 호출 추가
+        observeViewModel()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null // 메모리 누수 방지
+    private fun setupRecyclerView() {
+        recipeAdapter = RecommendedDishAdapter { selectedDish ->
+            val action = HomeFragmentDirections.actionHomeFragmentToRecipeDetailFragment(
+                recipeIds = selectedDish.recipeIds.toIntArray()
+            )
+            findNavController().navigate(action)
+        }
+        binding.rvRecipes.apply {
+            adapter = recipeAdapter
+            layoutManager = LinearLayoutManager(context)
+        }
+    }
+
+    // ⭐ Task 1, 4: 검색 및 필터 이벤트 리스너 추가
+    private fun setupListeners() {
+        // 1. 검색어 입력 리스너 (ENTER/Search 버튼)
+        binding.etSearchQuery.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch()
+                true
+            } else {
+                false
+            }
+        }
+
+        // 2. 칩 그룹 필터 리스너 (재료 일치율)
+        binding.chipGroupRatioFilter.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val checkedChip = group.findViewById<com.google.android.material.chip.Chip>(checkedIds.first())
+                val ratioText = checkedChip.text.toString().replace("%", "")
+                val ratio = (ratioText.toIntOrNull() ?: 60) / 100f
+                performSearch(ratio = ratio)
+            }
+        }
+    }
+
+    // ⭐ Task 4: 검색 수행 함수
+    private fun performSearch(ratio: Float = getCurrentRatio()) {
+        val query = binding.etSearchQuery.text?.toString()?.trim()
+        viewModel.syncRecipes(query = query, ratio = ratio)
+    }
+
+    // ⭐ Task 4: 현재 선택된 칩의 비율을 가져오는 헬퍼 함수
+    private fun getCurrentRatio(): Float {
+        val checkedId = binding.chipGroupRatioFilter.checkedChipId
+        // 기본값 60% (0.6f)
+        return if (checkedId != View.NO_ID) {
+            val checkedChip = binding.chipGroupRatioFilter.findViewById<com.google.android.material.chip.Chip>(checkedId)
+            val ratioText = checkedChip.text.toString().replace("%", "")
+            (ratioText.toIntOrNull() ?: 60) / 100f
+        } else {
+            0.6f
+        }
+    }
+
+    private fun observeViewModel() {
+        // ⭐ Task 1, 4: 표시될 레시피 목록 (dishesForDisplay) 관찰로 변경
+        // 유통기한 임박 재료 관찰 로직은 제거됨
+        viewModel.dishesForDisplay.observe(viewLifecycleOwner) { dishes ->
+            if (dishes.isNotEmpty()) {
+                // Task 5: UI/UX 개선 - 추천 목록에 개수 표시
+                binding.tvRecommendationTitle.text = "나를 위한 레시피 🍳 (${dishes.size}개)"
+                recipeAdapter.submitList(dishes)
+            } else {
+                binding.tvRecommendationTitle.text = "조건에 맞는 레시피가 없어요. 🤔"
+                recipeAdapter.submitList(emptyList())
+            }
+        }
     }
 }

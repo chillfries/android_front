@@ -10,12 +10,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ItemIngredientEditBinding
-import com.example.myapplication.domain.model.Ingredient
 import com.example.myapplication.domain.model.Storage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
+import com.example.myapplication.domain.model.Ingredient
 class IngredientListAdapter(
     private val allStorages: List<Storage>,
     private val onDeleteClick: (Ingredient) -> Unit,
