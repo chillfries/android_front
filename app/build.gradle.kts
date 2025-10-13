@@ -83,6 +83,10 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+
+    // 권한
+    implementation(libs.ted.permission.normal)
 
     // RecyclerView
     implementation(libs.androidx.recyclerview)
@@ -109,10 +113,13 @@ dependencies {
     // DataStore (세션 관리를 위해 추가)
     implementation(libs.androidx.datastore.preferences)
 
-    // TensorFlow Lite (ttemp에서 가져온 기능, mmain의 카메라 분석 기능에 필요할 수 있음)
-    implementation(libs.tensorflow.lite)
-    implementation(libs.tensorflow.lite.support)
-    implementation(libs.tensorflow.lite.task.vision)
+    // TensorFlow Lite (ttemp와 동일하게 구성 + 중복 제거)
+    implementation("org.tensorflow:tensorflow-lite:2.12.0")
+
+    // ✅ 아래와 같이 exclude 구문을 추가하여 중복되는 api 라이브러리를 제외합니다.
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4") {
+        exclude(group = "org.tensorflow", module = "tensorflow-lite-api")
+    }
 }
 
 // ▼▼▼▼▼ 이 코드는 그대로 유지해주세요. (TensorFlow Lite 라이브러리 충돌 방지) ▼▼▼▼▼

@@ -1,40 +1,26 @@
 package com.example.myapplication.presentation.ui.camera
 
-import androidx.camera.core.ImageProxy
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.myapplication.domain.repository.CameraRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class CameraViewModel @Inject constructor(
-    private val repository: CameraRepository
-) : ViewModel() {
+class CameraViewModel @Inject constructor() : ViewModel() {
 
-    private val _recognizedIngredients = MutableLiveData<List<String>>(emptyList())
-    val recognizedIngredients: LiveData<List<String>> get() = _recognizedIngredients
+    private val _navigateToEdit = MutableLiveData<List<String>?>()
+    val navigateToEdit: LiveData<List<String>?> = _navigateToEdit
 
-    private var lastAnalyzedTimestamp = 0L
-
-    fun analyzeImage(imageProxy: ImageProxy) {
-        val currentTimestamp = System.currentTimeMillis()
-        if (currentTimestamp - lastAnalyzedTimestamp >= 2000) {
-            lastAnalyzedTimestamp = currentTimestamp
-
-            // ⭐ 이제 ImageProxy를 직접 전달하므로 오류가 발생하지 않습니다.
-            val dummyResult = repository.processImageForIngredients(imageProxy)
-
-            if (dummyResult.isNotEmpty()) {
-                val currentList = _recognizedIngredients.value?.toMutableList() ?: mutableListOf()
-                dummyResult.forEach {
-                    if (!currentList.contains(it)) {
-                        currentList.add(it)
-                    }
-                }
-                _recognizedIngredients.postValue(currentList)
-            }
+    // 재료가 인식되면 이 함수를 호출하여 화면 이동을 트리거합니다.
+    fun onIngredientsDetected(ingredients: List<String>) {
+        if (ingredients.isNotEmpty()) {
+            _navigateToEdit.value = ingredients
         }
+    }
+
+    // 화면 이동이 완료된 후, LiveData를 초기화하여 중복 이동을 방지합니다.
+    fun onNavigationComplete() {
+        _navigateToEdit.value = null
     }
 }

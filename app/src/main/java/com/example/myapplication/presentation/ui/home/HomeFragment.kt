@@ -16,6 +16,9 @@ import androidx.lifecycle.repeatOnLifecycle // ✅ 안전한 수집 함수
 import com.example.myapplication.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch // ✅ 코루틴 빌더 (launch)
+import androidx.fragment.app.activityViewModels // ✅ AuthViewModel 사용을 위해 추가
+import com.example.myapplication.presentation.ui.auth.AuthViewModel // ✅ AuthViewModel import
+
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -23,6 +26,8 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
+    private val authViewModel: AuthViewModel by activityViewModels() // ✅ AuthViewModel 주입
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,8 +43,17 @@ class HomeFragment : Fragment() {
         setupSearchListener()
         observeViewModel()
 
-        // 초기 로드: 재료 기반 레시피 추천 실행
-        viewModel.searchRecipes(query = null)
+        // ✅ 수정: 인증 상태를 확인한 후 초기 로드를 실행합니다.
+        authViewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated ->
+            if (isAuthenticated) {
+                // 로그인 상태일 때만 재료 기반 추천 실행
+                viewModel.searchRecipes(query = null)
+            } else {
+                // 로그인 상태가 아니면 오류 없이 메시지 표시
+                binding.tvRecommendationTitle.text = "로그인 후 맞춤 레시피를 추천받으세요."
+                // 기존 검색 결과를 지우는 로직이 있다면 여기서 실행
+            }
+        }
     }
 
     private fun setupSearchListener() {

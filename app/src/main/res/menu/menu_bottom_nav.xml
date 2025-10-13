@@ -11,9 +11,9 @@
         android:title="냉장고" />
 
     <item
-        android:id="@+id/recipeFragment"
-        android:icon="@drawable/ic_recipe_outline"
-        android:title="레시피" />
+        android:id="@+id/searchFragment"
+        android:icon="@drawable/ic_search"
+        android:title="검색" />
 
     <item
         android:id="@+id/bookmarkFragment"

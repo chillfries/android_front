@@ -23,8 +23,6 @@
     <color name="color_divider">#FFEAEAEA</color>
     <color name="color_divider_strong">#FFD0D0D0</color>
 
-    <color name="color_primary">#E8DDFF</color>
-    <color name="color_on_primary">#FFFFFFFF</color>
     <color name="color_warning_light">#FFFFF3E6</color>
     <color name="color_warning_dark">#FFFF9800</color>
 
@@ -33,4 +31,14 @@
     <color name="dday_normal_green">#4CAF50</color>
 
     <color name="white_translucent">#B3FFFFFF</color>
+
+    <color name="gray_700">#FF616161</color>
+    <color name="red_500">#FFF44336</color>
+
+    <color name="color_green_primary">#FF8BC34A</color>
+    <color name="color_green_light">#FFC5E1A5</color>
+    <color name="color_green_dark">#FF689F38</color>
+    <color name="color_primary">@color/color_green_primary</color>
+    <color name="color_on_primary">#FF1A1A1A</color>
+
 </resources>
