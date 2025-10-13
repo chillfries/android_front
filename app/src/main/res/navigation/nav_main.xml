@@ -9,7 +9,20 @@
         android:id="@+id/homeFragment"
         android:name="com.example.myapplication.presentation.ui.home.HomeFragment"
         android:label="홈"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_recipeDetailFragment"
+            app:destination="@id/recipeDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/recipeDetailFragment"
+        android:name="com.example.myapplication.presentation.ui.home.RecipeDetailFragment"
+        android:label="레시피 상세"
+        tools:layout="@layout/fragment_recipe_detail">
+        <argument
+            android:name="recommendedDish"
+            app:argType="com.example.myapplication.data.model.RecommendedDish" /> </fragment>
 
     <navigation
         android:id="@+id/fridge_nav_graph"

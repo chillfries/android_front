@@ -1,3 +1,5 @@
+// 파일: mmain/main/java/com/example/myapplication/presentation/ui/fridge/FridgeFragment.kt
+
 package com.example.myapplication.presentation.ui.fridge
 
 import android.os.Bundle
@@ -9,11 +11,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentFridgeBinding
-import com.example.myapplication.domain.model.Ingredient
 import com.example.myapplication.domain.model.Storage
 import com.example.myapplication.presentation.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-
+import com.example.myapplication.domain.model.Ingredient
 @AndroidEntryPoint
 class FridgeFragment : BaseFragment<FragmentFridgeBinding>(FragmentFridgeBinding::inflate) {
 
@@ -26,7 +27,6 @@ class FridgeFragment : BaseFragment<FragmentFridgeBinding>(FragmentFridgeBinding
         setupRecyclerView()
         observeViewModel()
 
-        // ⭐ 여기를 수정했습니다! loadData() -> loadStorages()
         viewModel.loadStorages()
 
         binding.fabAddMenu.setOnClickListener {
@@ -49,6 +49,25 @@ class FridgeFragment : BaseFragment<FragmentFridgeBinding>(FragmentFridgeBinding
     }
 
     private fun observeViewModel() {
+        // ⭐ Task 2 이동: 유통기한 임박 재료 개수 관찰 및 표시
+        viewModel.imminentExpiryIngredients.observe(viewLifecycleOwner) { ingredients ->
+            val count = ingredients.size
+            if (count > 0) {
+                // 💡 FIX: ID 오류 방지를 위해 레이아웃에 맞춰 ID를 사용합니다.
+                binding.tvImminentCount.text = "(${count}개)"
+                binding.tvImminentCount.visibility = View.VISIBLE
+                binding.dividerImminent.visibility = View.VISIBLE
+                binding.tvImminentTitle.visibility = View.VISIBLE // 제목도 표시
+            } else {
+                binding.tvImminentCount.visibility = View.GONE
+                binding.dividerImminent.visibility = View.GONE
+                binding.tvImminentTitle.visibility = View.GONE // 제목도 숨김
+            }
+
+            // 레이아웃이 변경되었으므로 RecyclerView가 이 아래에 위치하도록 제약을 다시 걸어야 합니다.
+            // 여기서는 코드에서 직접 제어를 하지 않고, 레이아웃 XML의 제약에 의존합니다.
+        }
+
         // storages 데이터가 변경되면, ingredients 데이터와 함께 묶어서 어댑터에 전달
         viewModel.storages.observe(viewLifecycleOwner) { storages ->
             viewModel.ingredients.value?.let { ingredients ->
@@ -66,19 +85,20 @@ class FridgeFragment : BaseFragment<FragmentFridgeBinding>(FragmentFridgeBinding
         // 편집할 재료가 선택되면 IngredientEditFragment로 이동
         viewModel.ingredientToEdit.observe(viewLifecycleOwner) { ingredient ->
             if (ingredient != null) {
+                // 이 액션은 nav_main.xml의 fridge_nav_graph 내에 정의되어 있어야 합니다.
                 findNavController().navigate(R.id.action_fridgeFragment_to_ingredientEditFragment)
-                // 이동 후에는 선택 상태를 초기화하여 중복 이동을 방지합니다.
                 viewModel.clearIngredientToEdit()
             }
         }
     }
 
-    // Storage와 Ingredient 리스트를 받아서 어댑터가 사용할 데이터 형태로 가공하고 업데이트
     private fun updateStorageBoxes(storages: List<Storage>, ingredients: List<Ingredient>) {
         val ingredientsByStorage = ingredients.groupBy { ingredient ->
-            // 재료의 저장 위치 이름과 일치하는 Storage 객체의 ID를 찾습니다. 없으면 기본값(1L) 사용
-            storages.find { it.name == ingredient.storageLocation }?.id ?: 1L
+            // 재료의 storageLocation 이름과 일치하는 Storage 객체의 ID를 찾거나, 없으면 기본값(1L) 사용
+            storages.find { it.name == ingredient.storageLocation }?.id ?:
+            storages.firstOrNull { it.isDefault }?.id ?: 1L
         }
+        // ✅ 어댑터에 데이터 업데이트 요청 (UI 표시)
         storageBoxAdapter.updateData(storages, ingredientsByStorage)
     }
 
@@ -114,7 +134,7 @@ class FridgeFragment : BaseFragment<FragmentFridgeBinding>(FragmentFridgeBinding
                 }
                 R.id.menu_add_ingredient -> {
                     try {
-                        viewModel.clearIngredientToEdit() // 새 재료 추가 모드로 진입
+                        viewModel.clearIngredientToEdit()
                         findNavController().navigate(R.id.action_fridgeFragment_to_ingredientEditFragment)
                     } catch (e: Exception) {
                         Toast.makeText(context, "화면 이동에 실패했습니다.", Toast.LENGTH_LONG).show()

@@ -9,12 +9,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.FragmentIngredientListEditBinding
-import com.example.myapplication.domain.model.Ingredient
 import com.example.myapplication.presentation.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 import java.util.Date
-
+import com.example.myapplication.domain.model.Ingredient
 @AndroidEntryPoint
 class IngredientListEditFragment : BaseFragment<FragmentIngredientListEditBinding>(FragmentIngredientListEditBinding::inflate) {
 

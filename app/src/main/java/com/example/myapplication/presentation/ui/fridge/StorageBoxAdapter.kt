@@ -8,9 +8,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ItemStorageBoxBinding
-import com.example.myapplication.domain.model.Ingredient
 import com.example.myapplication.domain.model.Storage
-
+import com.example.myapplication.domain.model.Ingredient
 class StorageBoxAdapter(
     private var storages: List<Storage>,
     private var ingredientsByStorage: Map<Long, List<Ingredient>>,

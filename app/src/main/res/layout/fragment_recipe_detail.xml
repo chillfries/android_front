@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background"
+    tools:context=".presentation.ui.home.RecipeDetailFragment">
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="60dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="220dp">
+
+                <ImageView
+                    android:id="@+id/image_thumbnail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_food_placeholder"
+                    tools:ignore="ContentDescription" />
+
+                <ImageButton
+                    android:id="@+id/button_back"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/white"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:contentDescription="뒤로가기"/>
+
+                <ImageButton
+                    android:id="@+id/button_bookmark"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_bookmark_outline"
+                    app:tint="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:contentDescription="북마크"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/text_dish_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceHeadlineLarge"
+                    android:textColor="@color/color_text_dark"
+                    tools:text="돼지고기 김치찌개 (백종원 레시피)"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/text_meta_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/color_text_medium"
+                    android:textSize="14sp"
+                    tools:text="한식"
+                    android:layout_marginBottom="24dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="필요 재료"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/color_text_dark"
+                    android:layout_marginBottom="8dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_ingredients"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
+                    tools:itemCount="4"
+                    tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_recipe_ingredient"
+                    android:layout_marginBottom="24dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="레시피 순서"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/color_text_dark"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/text_instructions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/color_text_dark"
+                    android:textSize="16sp"
+                    tools:text="1. 김치를 썰고 돼지고기를 냄비에 넣습니다.\n2. 양념을 넣고 끓입니다."
+                    android:layout_marginBottom="24dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_youtube"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="유튜브에서 레시피 보기"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:icon="@drawable/ic_search"
+                    android:textColor="@color/color_text_dark"
+                    app:strokeColor="@color/color_divider_strong"
+                    app:iconTint="@color/dday_expired_red"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

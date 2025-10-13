@@ -5,7 +5,9 @@
 
     <string name="storage_icon_description">Storage Icon</string>
     <string name="storage_settings_button_description">Storage Settings</string>
+
     <string name="add_ingredient_or_storage">Add Ingredient or Storage</string>
 
     <string name="ingredient_count">%d개 재료</string>
+    <string name="satisfied_ingredient_count_format">%d개 재료 충족</string>
 </resources>

@@ -10,12 +10,14 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentRegisterBinding
+
+// Hilt 의존성 주입을 위해 @AndroidEntryPoint 추가
 import dagger.hilt.android.AndroidEntryPoint
 
-// ⭐ Hilt 어노테이션 추가
 @AndroidEntryPoint
 class RegisterFragment : Fragment(R.layout.fragment_register) {
 
+    // AuthActivity와 동일한 ViewModel 인스턴스를 공유
     private val viewModel: AuthViewModel by viewModels({ requireActivity() })
 
     private var _binding: FragmentRegisterBinding? = null
@@ -32,28 +34,30 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 1. authMessage LiveData 관찰: 사용자에게 메시지 표시 (토스트 메시지)
         viewModel.authMessage.observe(viewLifecycleOwner) { message ->
-            // 메시지가 비어있지 않을 때만 토스트를 띄웁니다.
-            message?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            if (message.isNotBlank()) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
         }
 
-        // 회원가입 성공(isAuthenticated가 null로 설정됨) 시 로그인 화면으로 돌아가도록 수정
-        viewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated ->
-            if (isAuthenticated == null) {
+        // 2. registrationComplete LiveData 관찰: 회원가입 성공 시 이전 화면(로그인)으로 돌아가기
+        viewModel.registrationComplete.observe(viewLifecycleOwner) { isComplete ->
+            if (isComplete == true) {
                 findNavController().popBackStack()
+                // 이벤트가 처리되었음을 ViewModel에 알림
+                viewModel.onRegistrationCompleteHandled()
             }
         }
 
+        // 3. 회원가입 버튼 클릭 시 ViewModel에 로직 위임
         binding.btnRegister.setOnClickListener {
-            // ⭐ 닉네임 값을 가져오도록 수정
-            val nickname = binding.etNickname.text.toString()
-            val email = binding.etEmail.text.toString()
-            val password = binding.etPassword.text.toString()
-            val confirmPassword = binding.etConfirmPassword.text.toString()
+            val nickname = binding.etNickname.text.toString().trim()
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+            val confirmPassword = binding.etConfirmPassword.text.toString().trim()
 
-            // ⭐ performRegister 함수에 nickname을 전달하도록 수정
+            // ViewModel의 회원가입 로직 호출
             viewModel.performRegister(nickname, email, password, confirmPassword)
         }
     }

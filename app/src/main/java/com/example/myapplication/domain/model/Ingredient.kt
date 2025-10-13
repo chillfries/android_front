@@ -7,9 +7,9 @@ import kotlinx.parcelize.Parcelize
 import java.util.Date
 
 @Parcelize
-@Entity(tableName = "ingredients") // 데이터베이스 테이블 이름 지정
+@Entity(tableName = "ingredients") // ✅ DB 테이블로 사용하도록 어노테이션 추가
 data class Ingredient(
-    @PrimaryKey(autoGenerate = true) // id를 자동 증가하는 기본 키로 설정
+    @PrimaryKey(autoGenerate = true) // ✅ id를 기본 키로 설정
     val id: Long = 0,
     val name: String,
     val quantity: Int,

@@ -7,12 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ItemIngredientIconBinding
 // ⭐ 수정: domain.model 패키지의 클래스를 import 합니다. ⭐
-import com.example.myapplication.domain.model.Ingredient
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.Date
-
+import com.example.myapplication.domain.model.Ingredient
 class IngredientIconAdapter(
     private var ingredients: List<Ingredient>,
     private val onIngredientClick: (Ingredient) -> Unit
