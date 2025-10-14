@@ -79,10 +79,6 @@ class RecipeDetailFragment : BaseFragment<FragmentRecipeDetailBinding>(FragmentR
             } else {
                 buttonYoutube.visibility = View.GONE
             }
-
-            // 7. 북마크 아이콘 초기 상태 설정
-            buttonBookmark.setImageResource(R.drawable.ic_bookmark_outline)
-            buttonBookmark.setColorFilter(ContextCompat.getColor(root.context, R.color.color_text_light))
         }
     }
 

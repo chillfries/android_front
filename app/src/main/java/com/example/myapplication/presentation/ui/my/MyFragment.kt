@@ -20,8 +20,7 @@ class MyFragment : BaseFragment<FragmentMyBinding>(FragmentMyBinding::inflate) {
         super.onViewCreated(view, savedInstanceState)
 
         // ✅ "로그아웃" 텍스트 버튼으로 사용
-        binding.textView.text = "로그아웃"
-        binding.textView.setOnClickListener {
+        binding.tvLogoutButton.setOnClickListener {
             authViewModel.performLogout() // ViewModel에 로그아웃 요청
 
             // 로그아웃 후 로그인 화면으로 이동

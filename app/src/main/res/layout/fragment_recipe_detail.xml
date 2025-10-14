@@ -48,18 +48,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     android:contentDescription="뒤로가기"/>
 
-                <ImageButton
-                    android:id="@+id/button_bookmark"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_bookmark_outline"
-                    app:tint="@color/white"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:contentDescription="북마크"/>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout

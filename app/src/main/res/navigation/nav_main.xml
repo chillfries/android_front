@@ -22,7 +22,8 @@
         tools:layout="@layout/fragment_recipe_detail">
         <argument
             android:name="recommendedDish"
-            app:argType="com.example.myapplication.data.model.RecommendedDish" /> </fragment>
+            app:argType="com.example.myapplication.data.model.RecommendedDish" />
+    </fragment>
 
     <navigation
         android:id="@+id/fridge_nav_graph"
@@ -48,7 +49,13 @@
             tools:layout="@layout/fragment_ingredient_list_edit">
             <argument
                 android:name="storageId"
-                app:argType="long" />
+                app:argType="long"
+                android:defaultValue="-1L" />
+            <argument
+                android:name="ingredients"
+                app:argType="string[]"
+                app:nullable="true"
+                android:defaultValue="@null" />
         </fragment>
 
         <fragment
@@ -67,23 +74,17 @@
             android:label="Camera"
             tools:layout="@layout/fragment_camera">
             <action
-                android:id="@+id/action_cameraFragment_to_ingredientEditFragment"
-                app:destination="@id/ingredientEditFragment" />
+                android:id="@+id/action_cameraFragment_to_ingredientListEditFragment"
+                app:destination="@id/ingredientListEditFragment" >
+                <argument
+                    android:name="ingredients"
+                    app:argType="string[]"
+                    app:nullable="true"
+                    android:defaultValue="@null" />
+            </action>
         </fragment>
 
     </navigation>
-
-    <fragment
-        android:id="@+id/recipeFragment"
-        android:name="com.example.myapplication.presentation.ui.recipe.RecipeFragment"
-        android:label="레시피"
-        tools:layout="@layout/fragment_recipe" />
-
-    <fragment
-        android:id="@+id/bookmarkFragment"
-        android:name="com.example.myapplication.presentation.ui.bookmark.BookmarkFragment"
-        android:label="북마크"
-        tools:layout="@layout/fragment_bookmark" />
 
     <fragment
         android:id="@+id/myFragment"

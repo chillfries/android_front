@@ -10,24 +10,10 @@ import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.example.myapplication.data.model.RecommendedDish
-import com.example.myapplication.data.model.RecipeIngredient // ⭐ 추가
-import com.example.myapplication.data.model.RecipeStep // ⭐ 추가
-
-// ⭐ 임시 더미 데이터 정의 (통합 테스트용)
-private val DUMMY_INGREDIENTS = listOf(
-    RecipeIngredient(name = "돼지고기", quantity = "300g", isSatisfied = true),
-    RecipeIngredient(name = "김치", quantity = "1/4 포기", isSatisfied = true),
-    RecipeIngredient(name = "양파", quantity = "1/2개", isSatisfied = false),
-    RecipeIngredient(name = "두부", quantity = "1/2 모", isSatisfied = false)
-)
-private val DUMMY_STEPS = listOf(
-    RecipeStep(step = 1, description = "김치와 돼지고기를 썰어 냄비에 넣고 볶습니다."),
-    RecipeStep(step = 2, description = "물 1컵과 양념을 넣고 끓입니다."),
-    RecipeStep(step = 3, description = "두부를 넣고 5분간 더 끓입니다.")
-)
-// ***************************************************************
-
-// ... (class definition)
+import com.example.myapplication.data.model.RecipeIngredient
+import com.example.myapplication.data.model.RecipeStep
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 @Singleton
 class RecipeRepositoryImpl @Inject constructor(
@@ -40,26 +26,67 @@ class RecipeRepositoryImpl @Inject constructor(
     override suspend fun searchAndCacheRecommendedDishes(searchRequest: SearchRequest): Response<GroupedSearchResponse> {
         val response = apiService.searchRecipes(searchRequest)
         if (response.isSuccessful) {
-            response.body()?.results?.map {
-                // ⭐ 수정: 새로운 필드에 더미 데이터를 채우도록 변경
-                RecommendedDish(
-                    dishId = it.dishId,
-                    dishName = it.dishName,
-                    recipeIds = it.recipeIds,
-                    satisfiedIngredientCount = (2..4).random(), // 임시 값
-                    category = "한식 / 찌개",
-                    youtubeThumbnailUrl = "https://img.youtube.com/vi/dummy_id_${it.dishId}/mqdefault.jpg",
-                    youtubeUrl = "https://www.youtube.com/watch?v=dummy_id_${it.dishId}",
-                    requiredIngredients = DUMMY_INGREDIENTS,
-                    recipeSteps = DUMMY_STEPS
-                )
-            }?.let {
+            val searchResults = response.body()?.results ?: return response
+            val userIngredients = searchRequest.ingredients.toSet()
+
+            // 1. 추천된 레시피들의 상세 정보를 가져오기 위해 ID 목록을 추출합니다. (각 요리별 첫 번째 레시피)
+            val recipeIdsToFetch = searchResults.mapNotNull { it.recipeIds.firstOrNull() }
+
+            if (recipeIdsToFetch.isNotEmpty()) {
+                // 2. 서버에 레시피 상세 정보들을 한 번에 요청합니다.
+                val detailsResponse = apiService.getRecipesByIds(recipeIdsToFetch)
+                if (detailsResponse.isSuccessful) {
+                    val recipeDetailsMap = detailsResponse.body()?.associateBy { it.id } ?: emptyMap()
+
+                    // 3. 서버 응답과 사용자 재료를 비교하여 RecommendedDish 목록을 만듭니다.
+                    val recommendedDishes = searchResults.map { searchResult ->
+                        val mainRecipeId = searchResult.recipeIds.firstOrNull()
+                        val recipeDetail = mainRecipeId?.let { recipeDetailsMap[it] }
+
+                        val requiredIngredients = recipeDetail?.ingredients?.map { detail ->
+                            RecipeIngredient(
+                                name = detail.ingredient.name,
+                                quantity = detail.quantityDisplay ?: "",
+                                isSatisfied = userIngredients.contains(detail.ingredient.name)
+                            )
+                        } ?: emptyList()
+
+                        val satisfiedCount = requiredIngredients.count { it.isSatisfied }
+
+                        val recipeSteps = recipeDetail?.instructions?.let { jsonString ->
+                            try {
+                                val stepList: List<String> = Gson().fromJson(jsonString, object : TypeToken<List<String>>() {}.type)
+                                stepList.mapIndexed { index, description -> RecipeStep(step = index + 1, description = description) }
+                            } catch (e: Exception) {
+                                emptyList()
+                            }
+                        } ?: emptyList()
+
+
+                        RecommendedDish(
+                            dishId = searchResult.dishId,
+                            dishName = searchResult.dishName,
+                            recipeIds = searchResult.recipeIds,
+                            satisfiedIngredientCount = satisfiedCount, // 실제 충족 개수로 설정
+                            category = "한식", // TODO: 실제 카테고리 데이터로 변경 필요
+                            youtubeThumbnailUrl = recipeDetail?.thumbnailUrl ?: "",
+                            youtubeUrl = recipeDetail?.youtubeUrl ?: "",
+                            requiredIngredients = requiredIngredients,
+                            recipeSteps = recipeSteps
+                        )
+                    }
+                    // 4. 로컬 DB에 결과 캐시
+                    dao.clearRecommendedDishes()
+                    dao.insertOrUpdateRecommendedDishes(recommendedDishes)
+                }
+            } else {
+                // 검색 결과가 없으면 캐시를 비웁니다.
                 dao.clearRecommendedDishes()
-                dao.insertOrUpdateRecommendedDishes(it)
             }
         }
         return response
     }
+
 
     // 레시피 상세 정보 (캐시 우선 조회)
     override fun getRecipeDetails(recipeIds: List<Int>): Flow<Result<List<RecipeDetailEntity>>> = flow {

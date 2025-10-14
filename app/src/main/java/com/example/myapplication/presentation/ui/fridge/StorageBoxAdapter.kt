@@ -10,6 +10,7 @@ import com.example.myapplication.R
 import com.example.myapplication.databinding.ItemStorageBoxBinding
 import com.example.myapplication.domain.model.Storage
 import com.example.myapplication.domain.model.Ingredient
+
 class StorageBoxAdapter(
     private var storages: List<Storage>,
     private var ingredientsByStorage: Map<Long, List<Ingredient>>,
@@ -39,23 +40,24 @@ class StorageBoxAdapter(
             val iconResId = context.resources.getIdentifier(storage.iconResName, "drawable", context.packageName)
             imageStorageIcon.setImageResource(if (iconResId != 0) iconResId else R.drawable.ic_fridge)
 
-            // ⭐ 4. 설정 버튼 리스너를 먼저 설정하여 이벤트 우선순위 보장
+            // '정리되지 않은 재료' (isDefault) 박스의 스타일을 수정합니다.
             if (storage.isDefault) {
                 buttonStorageSettings.visibility = View.GONE
                 containerStorageBox.setBackgroundColor(ContextCompat.getColor(context, R.color.color_primary))
-                textStorageName.setTextColor(ContextCompat.getColor(context, R.color.white))
-                textIngredientCount.setTextColor(ContextCompat.getColor(context, R.color.white_translucent))
-                imageStorageIcon.setColorFilter(ContextCompat.getColor(context, R.color.white))
+                // 텍스트 색상을 검정색으로 변경
+                textStorageName.setTextColor(ContextCompat.getColor(context, android.R.color.black))
+                textIngredientCount.setTextColor(ContextCompat.getColor(context, android.R.color.black))
+                // 아이콘 색상을 검정색으로 변경
+                imageStorageIcon.setColorFilter(ContextCompat.getColor(context, android.R.color.black))
             } else {
                 buttonStorageSettings.visibility = View.VISIBLE
-                buttonStorageSettings.setOnClickListener { onStorageSettingsClick(storage) } // 리스너 설정
+                buttonStorageSettings.setOnClickListener { onStorageSettingsClick(storage) }
                 containerStorageBox.setBackgroundColor(ContextCompat.getColor(context, R.color.color_surface))
                 textStorageName.setTextColor(ContextCompat.getColor(context, R.color.color_text_dark))
                 textIngredientCount.setTextColor(ContextCompat.getColor(context, R.color.color_text_light))
                 imageStorageIcon.clearColorFilter()
             }
 
-            // 박스 전체 클릭 리스너는 나중에 설정
             root.setOnClickListener { onStorageBoxClick(storage) }
 
             if (currentIngredients.isEmpty()) {

@@ -3,14 +3,14 @@
     <style name="Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorOnPrimary">@color/color_on_primary</item>
-        <item name="colorSurface">@color/color_surface</item>
+        <item name="colorSurface">@color/white</item>
         <item name="android:colorBackground">@color/color_background</item>
 
         <item name="textAppearanceHeadlineLarge">@style/TextAppearance.App.HeadlineLarge</item>
         <item name="textAppearanceBodyMedium">@style/TextAppearance.App.BodyMedium</item>
 
         <item name="android:statusBarColor">@color/color_background</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightStatusBar">false</item>
 
     </style>
 

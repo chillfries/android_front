@@ -48,10 +48,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_gravity="center_horizontal"
                 app:icon="@drawable/ic_add"
-                app:iconTint="?attr/colorPrimary"
-                android:textColor="?attr/colorPrimary"/>
-
-        </LinearLayout>
+                app:iconTint="@color/black"  android:textColor="@color/black"/> </LinearLayout>
     </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
